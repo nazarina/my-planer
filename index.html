@@ -14,7 +14,6 @@
       --white: #ffffff;
       --button-grad: linear-gradient(to top, #800000 0%, #d63031 100%);
       
-      /* Нейтральные и спокойные оттенки для цикла */
       --period-accent: #e8a5b8;
       --period-subtle-bg: #fdf5f7;
       --forecast-accent: #d1b3c4;
@@ -40,7 +39,6 @@
       flex-direction: column;
     }
 
-    /* Навигация */
     header {
       background: var(--white);
       padding: 15px 20px;
@@ -72,7 +70,6 @@
       color: var(--white);
     }
 
-    /* Контейнер */
     .container {
       max-width: 1000px;
       width: 100%;
@@ -89,7 +86,6 @@
       margin-bottom: 20px;
     }
 
-    /* Модальное окно / Опрос */
     .modal-overlay {
       position: fixed;
       top: 0; left: 0; right: 0; bottom: 0;
@@ -142,7 +138,6 @@
       margin-top: 10px;
     }
 
-    /* Навигация по неделям */
     .week-navigation {
       display: flex;
       justify-content: space-between;
@@ -159,7 +154,6 @@
       color: var(--text-main);
     }
 
-    /* Карточки дней */
     .days-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -247,53 +241,99 @@
       flex: 1;
     }
 
+    /* Элемент задачи */
     .task-item {
       display: flex;
       align-items: center;
       gap: 8px;
       margin-bottom: 6px;
-      font-size: 0.9rem;
-      padding: 4px 8px;
-      border-radius: 6px;
-      transition: background 0.2s;
+      font-size: 0.88rem;
+      padding: 6px 8px;
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.5);
+      transition: all 0.2s ease;
     }
 
-    .task-item.completed span {
+    .task-item.completed span.task-text {
       text-decoration: line-through;
       opacity: 0.5;
     }
 
-    /* Стиль для задачи, привязанной к дате */
+    /* Стиль для зафиксированной задачи */
     .task-item.is-fixed {
       background: var(--fixed-task-bg);
       color: var(--fixed-task-color);
       font-weight: 600;
+      box-shadow: 0 1px 3px rgba(0, 128, 128, 0.08);
+    }
+
+    .task-text {
+      flex: 1;
+      word-break: break-word;
     }
 
     .task-tag {
       font-size: 0.75rem;
-      color: #888;
-      background: rgba(0, 0, 0, 0.05);
-      padding: 1px 5px;
-      border-radius: 4px;
-      margin-left: auto;
+      opacity: 0.7;
     }
 
-    .task-item.is-fixed .task-tag {
-      background: transparent;
-      color: var(--fixed-task-color);
+    /* Компактный неброский переключатель (Toggle Switch) */
+    .toggle-switch {
+      position: relative;
+      display: inline-block;
+      width: 26px;
+      height: 14px;
+      margin-left: 4px;
+      flex-shrink: 0;
+      opacity: 0.4;
+      transition: opacity 0.2s;
     }
 
+    .task-item:hover .toggle-switch,
+    .task-item.is-fixed .toggle-switch {
+      opacity: 1;
+    }
+
+    .toggle-switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .toggle-slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background-color: #ccc;
+      transition: .2s;
+      border-radius: 14px;
+    }
+
+    .toggle-slider:before {
+      position: absolute;
+      content: "";
+      height: 10px;
+      width: 10px;
+      left: 2px;
+      bottom: 2px;
+      background-color: white;
+      transition: .2s;
+      border-radius: 50%;
+    }
+
+    input:checked + .toggle-slider {
+      background-color: var(--accent-color);
+    }
+
+    input:checked + .toggle-slider:before {
+      transform: translateX(12px);
+    }
+
+    /* Форма добавления задачи */
     .add-task-form {
       display: flex;
-      flex-direction: column;
-      gap: 6px;
-      margin-top: 10px;
-    }
-
-    .add-task-input-group {
-      display: flex;
       gap: 5px;
+      margin-top: 10px;
     }
 
     .add-task-form input[type="text"] {
@@ -311,20 +351,6 @@
       border: none;
       padding: 6px 12px;
       border-radius: 6px;
-      cursor: pointer;
-    }
-
-    .add-task-options {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      font-size: 0.75rem;
-      color: #666;
-      cursor: pointer;
-      user-select: none;
-    }
-
-    .add-task-options input[type="checkbox"] {
       cursor: pointer;
     }
 
@@ -417,7 +443,6 @@
   </header>
 
   <div class="container">
-    <!-- Первоначальный опрос -->
     <div id="survey-modal" class="modal-overlay hidden">
       <div class="modal">
         <h2>Настройка планера</h2>
@@ -440,7 +465,6 @@
       </div>
     </div>
 
-    <!-- Страница: Понедельный планер -->
     <div id="planner-view">
       <div class="card">
         <div class="week-navigation">
@@ -452,7 +476,6 @@
       </div>
     </div>
 
-    <!-- Страница: Календарь -->
     <div id="calendar-view" class="hidden">
       <div class="card">
         <div class="month-picker-container">
@@ -469,7 +492,6 @@
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-app.js";
     import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-database.js";
 
-    // Инициализация Firebase
     const firebaseConfig = {
       apiKey: "AIzaSyAW9W3M4p5yHxfwN4lhOot3YWxFoPKciEA",
       authDomain: "diary-1c00d.firebaseapp.com",
@@ -484,7 +506,6 @@
     const db = getDatabase(app);
     const stateRef = ref(db, 'planner_state');
 
-    // --- Состояние приложения ---
     let appState = {
       userData: null,
       periodLogs: [],
@@ -493,7 +514,6 @@
       calendarDate: new Date()
     };
 
-    // Слушаем базу данных Firebase
     onValue(stateRef, (snapshot) => {
       const data = snapshot.val();
       if (data) {
@@ -506,8 +526,6 @@
         document.getElementById('survey-modal').classList.remove('hidden');
       } else {
         document.getElementById('survey-modal').classList.add('hidden');
-        
-        // Перенос незавершённых задач
         if (autoRolloverTasks()) {
           saveData();
         } else {
@@ -524,7 +542,6 @@
       });
     }
 
-    // Автоматический перенос задач
     function autoRolloverTasks() {
       const todayStr = formatDate(new Date());
       let modified = false;
@@ -535,7 +552,6 @@
           const remainingTasks = [];
 
           dayTasks.forEach(task => {
-            // Переносятся только невыполненные задачи без флага fixed
             if (!task.done && !task.fixed) {
               if (!appState.tasks[todayStr]) appState.tasks[todayStr] = [];
               appState.tasks[todayStr].push({
@@ -616,7 +632,6 @@
 
       while (nextCycleStart <= targetDate) {
         nextCycleStart.setDate(nextCycleStart.getDate() + cycleLen);
-        
         let cycleEnd = new Date(nextCycleStart);
         cycleEnd.setDate(cycleEnd.getDate() + duration - 1);
 
@@ -700,21 +715,19 @@
             ${dayTasks.map((t, index) => `
               <li class="task-item ${t.done ? 'completed' : ''} ${t.fixed ? 'is-fixed' : ''}">
                 <input type="checkbox" ${t.done ? 'checked' : ''} onchange="toggleTask('${dateStr}', ${index})">
-                <span>${t.text}</span>
+                <span class="task-text">${t.text}</span>
                 ${t.isRolledOver ? `<span class="task-tag" title="Перенесено с прошлого дня">↪</span>` : ''}
-                ${t.fixed ? `<span class="task-tag" title="Не переносится">📌</span>` : ''}
+                ${t.fixed ? `<span class="task-tag" title="Привязано к дате">📌</span>` : ''}
+                <label class="toggle-switch" title="Не переносить задачу">
+                  <input type="checkbox" ${t.fixed ? 'checked' : ''} onchange="toggleFixedTask('${dateStr}', ${index})">
+                  <span class="toggle-slider"></span>
+                </label>
               </li>
             `).join('')}
           </ul>
           <form class="add-task-form" onsubmit="addTask(event, '${dateStr}')">
-            <div class="add-task-input-group">
-              <input type="text" class="task-input" placeholder="Новая задача..." required>
-              <button type="submit">+</button>
-            </div>
-            <label class="add-task-options">
-              <input type="checkbox" class="task-fixed-checkbox">
-              Не переносить (привязана к дате)
-            </label>
+            <input type="text" class="task-input" placeholder="Новая задача..." required>
+            <button type="submit">+</button>
           </form>
         `;
 
@@ -726,10 +739,7 @@
       e.preventDefault();
       const form = e.target;
       const textInput = form.querySelector('.task-input');
-      const fixedCheckbox = form.querySelector('.task-fixed-checkbox');
-
       const text = textInput.value.trim();
-      const isFixed = fixedCheckbox.checked;
 
       if (!text) return;
 
@@ -737,7 +747,7 @@
       appState.tasks[dateStr].push({ 
         text: text, 
         done: false, 
-        fixed: isFixed 
+        fixed: false 
       });
       
       saveData();
@@ -746,6 +756,13 @@
     window.toggleTask = function(dateStr, index) {
       if (appState.tasks[dateStr] && appState.tasks[dateStr][index]) {
         appState.tasks[dateStr][index].done = !appState.tasks[dateStr][index].done;
+        saveData();
+      }
+    };
+
+    window.toggleFixedTask = function(dateStr, index) {
+      if (appState.tasks[dateStr] && appState.tasks[dateStr][index]) {
+        appState.tasks[dateStr][index].fixed = !appState.tasks[dateStr][index].fixed;
         saveData();
       }
     };
