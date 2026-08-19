@@ -6,7 +6,7 @@
   <title>Мой Планер</title>
   <style>
     :root {
-      --soft-pink: #fff0f3;
+      --soft-pink: #f3fdfd;
       --soft-purple: #f3f0ff;
       --accent-color: #008080;
       --deep-accent: #800000;
@@ -19,6 +19,10 @@
       --period-subtle-bg: #fdf5f7;
       --forecast-accent: #d1b3c4;
       --forecast-subtle-bg: #faf7f9;
+
+      /* Выделение привязанных задач */
+      --fixed-task-bg: #e6f4f4;
+      --fixed-task-color: #005b5b;
     }
 
     * {
@@ -173,7 +177,6 @@
       transition: all 0.2s ease;
     }
 
-    /* Элегантное и незаметное выделение */
     .day-card.is-period {
       background: var(--period-subtle-bg);
       border-left-color: var(--period-accent);
@@ -205,7 +208,6 @@
       gap: 6px;
     }
 
-    /* Аккуратная плашка цикла */
     .cycle-dot-indicator {
       display: inline-flex;
       align-items: center;
@@ -222,7 +224,6 @@
       background: rgba(209, 179, 196, 0.15);
     }
 
-    /* Минималистичная кнопка отметки */
     .period-toggle-btn {
       background: transparent;
       border: none;
@@ -252,11 +253,21 @@
       gap: 8px;
       margin-bottom: 6px;
       font-size: 0.9rem;
+      padding: 4px 8px;
+      border-radius: 6px;
+      transition: background 0.2s;
     }
 
     .task-item.completed span {
       text-decoration: line-through;
       opacity: 0.5;
+    }
+
+    /* Стиль для задачи, привязанной к дате */
+    .task-item.is-fixed {
+      background: var(--fixed-task-bg);
+      color: var(--fixed-task-color);
+      font-weight: 600;
     }
 
     .task-tag {
@@ -266,6 +277,11 @@
       padding: 1px 5px;
       border-radius: 4px;
       margin-left: auto;
+    }
+
+    .task-item.is-fixed .task-tag {
+      background: transparent;
+      color: var(--fixed-task-color);
     }
 
     .add-task-form {
@@ -303,7 +319,9 @@
       align-items: center;
       gap: 6px;
       font-size: 0.75rem;
-      color: #777;
+      color: #666;
+      cursor: pointer;
+      user-select: none;
     }
 
     .add-task-options input[type="checkbox"] {
@@ -356,7 +374,6 @@
       opacity: 0.25;
     }
 
-    /* Деликатные маркеры в календаре */
     .month-day.period {
       background: var(--period-subtle-bg);
       font-weight: 600;
@@ -490,9 +507,9 @@
       } else {
         document.getElementById('survey-modal').classList.add('hidden');
         
-        // Автоматический перенос невыполненных задач при загрузке
+        // Перенос незавершённых задач
         if (autoRolloverTasks()) {
-          saveData(); // Если были переносы, обновляем Firebase
+          saveData();
         } else {
           renderCurrentView();
         }
@@ -507,23 +524,20 @@
       });
     }
 
-    // Логика автоматического переноса задач
+    // Автоматический перенос задач
     function autoRolloverTasks() {
       const todayStr = formatDate(new Date());
       let modified = false;
 
       Object.keys(appState.tasks).forEach(dateStr => {
-        // Проверяем только прошлые дни
         if (dateStr < todayStr) {
           const dayTasks = appState.tasks[dateStr];
           const remainingTasks = [];
 
           dayTasks.forEach(task => {
-            // Если задача не сделана и НЕ привязана к дате (fixed !== true)
+            // Переносятся только невыполненные задачи без флага fixed
             if (!task.done && !task.fixed) {
               if (!appState.tasks[todayStr]) appState.tasks[todayStr] = [];
-              
-              // Переносим на сегодня, отмечаем флаг переноса для UI
               appState.tasks[todayStr].push({
                 ...task,
                 isRolledOver: true
@@ -684,11 +698,11 @@
           </div>
           <ul class="task-list" id="tasks-${dateStr}">
             ${dayTasks.map((t, index) => `
-              <li class="task-item ${t.done ? 'completed' : ''}">
+              <li class="task-item ${t.done ? 'completed' : ''} ${t.fixed ? 'is-fixed' : ''}">
                 <input type="checkbox" ${t.done ? 'checked' : ''} onchange="toggleTask('${dateStr}', ${index})">
                 <span>${t.text}</span>
                 ${t.isRolledOver ? `<span class="task-tag" title="Перенесено с прошлого дня">↪</span>` : ''}
-                ${t.fixed ? `<span class="task-tag" title="Привязано к дате">📌</span>` : ''}
+                ${t.fixed ? `<span class="task-tag" title="Не переносится">📌</span>` : ''}
               </li>
             `).join('')}
           </ul>
