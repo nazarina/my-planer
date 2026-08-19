@@ -6,7 +6,7 @@
   <title>Мой Планер</title>
   <style>
     :root {
-      --soft-pink: #f3fdfd;
+      --soft-pink: #fff0f3;
       --soft-purple: #f3f0ff;
       --accent-color: #008080;
       --deep-accent: #800000;
@@ -14,14 +14,11 @@
       --white: #ffffff;
       --button-grad: linear-gradient(to top, #800000 0%, #d63031 100%);
       
+      /* Нейтральные и спокойные оттенки для цикла */
       --period-accent: #e8a5b8;
       --period-subtle-bg: #fdf5f7;
       --forecast-accent: #d1b3c4;
       --forecast-subtle-bg: #faf7f9;
-
-      /* Выделение привязанных задач */
-      --fixed-task-bg: #e6f4f4;
-      --fixed-task-color: #005b5b;
     }
 
     * {
@@ -39,6 +36,37 @@
       flex-direction: column;
     }
 
+    /* Верхнее сервисно-навигационное меню */
+    .top-services-bar {
+      background: #fafafa;
+      border-bottom: 1px solid #eaeaea;
+      padding: 8px 20px;
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .top-services-bar a, .top-services-bar button {
+      color: var(--text-main);
+      text-decoration: none;
+      font-size: 0.85rem;
+      padding: 5px 12px;
+      border-radius: 16px;
+      background: var(--white);
+      border: 1px solid #ddd;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+    }
+
+    .top-services-bar a:hover, .top-services-bar button:hover {
+      border-color: var(--accent-color);
+      color: var(--accent-color);
+    }
+
+    /* Навигация */
     header {
       background: var(--white);
       padding: 15px 20px;
@@ -70,6 +98,7 @@
       color: var(--white);
     }
 
+    /* Контейнер */
     .container {
       max-width: 1000px;
       width: 100%;
@@ -86,6 +115,7 @@
       margin-bottom: 20px;
     }
 
+    /* Модальное окно / Опрос */
     .modal-overlay {
       position: fixed;
       top: 0; left: 0; right: 0; bottom: 0;
@@ -138,6 +168,7 @@
       margin-top: 10px;
     }
 
+    /* Навигация по неделям */
     .week-navigation {
       display: flex;
       justify-content: space-between;
@@ -154,6 +185,7 @@
       color: var(--text-main);
     }
 
+    /* Карточки дней */
     .days-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -171,6 +203,7 @@
       transition: all 0.2s ease;
     }
 
+    /* Элегантное и незаметное выделение */
     .day-card.is-period {
       background: var(--period-subtle-bg);
       border-left-color: var(--period-accent);
@@ -202,6 +235,7 @@
       gap: 6px;
     }
 
+    /* Аккуратная плашка цикла */
     .cycle-dot-indicator {
       display: inline-flex;
       align-items: center;
@@ -218,6 +252,7 @@
       background: rgba(209, 179, 196, 0.15);
     }
 
+    /* Минималистичная кнопка отметки */
     .period-toggle-btn {
       background: transparent;
       border: none;
@@ -241,102 +276,26 @@
       flex: 1;
     }
 
-    /* Элемент задачи */
     .task-item {
       display: flex;
       align-items: center;
       gap: 8px;
       margin-bottom: 6px;
-      font-size: 0.88rem;
-      padding: 6px 8px;
-      border-radius: 8px;
-      background: rgba(255, 255, 255, 0.5);
-      transition: all 0.2s ease;
+      font-size: 0.9rem;
     }
 
-    .task-item.completed span.task-text {
+    .task-item.completed span {
       text-decoration: line-through;
       opacity: 0.5;
     }
 
-    /* Стиль для зафиксированной задачи */
-    .task-item.is-fixed {
-      background: var(--fixed-task-bg);
-      color: var(--fixed-task-color);
-      font-weight: 600;
-      box-shadow: 0 1px 3px rgba(0, 128, 128, 0.08);
-    }
-
-    .task-text {
-      flex: 1;
-      word-break: break-word;
-    }
-
-    .task-tag {
-      font-size: 0.75rem;
-      opacity: 0.7;
-    }
-
-    /* Компактный неброский переключатель (Toggle Switch) */
-    .toggle-switch {
-      position: relative;
-      display: inline-block;
-      width: 26px;
-      height: 14px;
-      margin-left: 4px;
-      flex-shrink: 0;
-      opacity: 0.4;
-      transition: opacity 0.2s;
-    }
-
-    .task-item:hover .toggle-switch,
-    .task-item.is-fixed .toggle-switch {
-      opacity: 1;
-    }
-
-    .toggle-switch input {
-      opacity: 0;
-      width: 0;
-      height: 0;
-    }
-
-    .toggle-slider {
-      position: absolute;
-      cursor: pointer;
-      top: 0; left: 0; right: 0; bottom: 0;
-      background-color: #ccc;
-      transition: .2s;
-      border-radius: 14px;
-    }
-
-    .toggle-slider:before {
-      position: absolute;
-      content: "";
-      height: 10px;
-      width: 10px;
-      left: 2px;
-      bottom: 2px;
-      background-color: white;
-      transition: .2s;
-      border-radius: 50%;
-    }
-
-    input:checked + .toggle-slider {
-      background-color: var(--accent-color);
-    }
-
-    input:checked + .toggle-slider:before {
-      transform: translateX(12px);
-    }
-
-    /* Форма добавления задачи */
     .add-task-form {
       display: flex;
       gap: 5px;
       margin-top: 10px;
     }
 
-    .add-task-form input[type="text"] {
+    .add-task-form input {
       flex: 1;
       padding: 6px 10px;
       border: 1px solid #e0e0e0;
@@ -400,6 +359,7 @@
       opacity: 0.25;
     }
 
+    /* Деликатные маркеры в календаре */
     .month-day.period {
       background: var(--period-subtle-bg);
       font-weight: 600;
@@ -434,6 +394,15 @@
 </head>
 <body>
 
+  <!-- Верхняя панель сервисного меню -->
+  <div class="top-services-bar">
+    <a href="https://nazarina.github.io/workout/" target="_blank">Тренировки</a>
+    <button onclick="switchView('calendar')">График месячных</button>
+    <a href="https://nazarina.github.io/diary-vova/" target="_blank">Дневник Вовы</a>
+    <a href="https://nazarina.github.io/diary-varya/" target="_blank">Дневник Вари</a>
+    <a href="https://nazarina.github.io/pay-novamed/" target="_blank">Новамед</a>
+  </div>
+
   <header>
     <h1>Мой Планер</h1>
     <nav>
@@ -443,10 +412,11 @@
   </header>
 
   <div class="container">
+    <!-- Первоначальный опрос -->
     <div id="survey-modal" class="modal-overlay hidden">
       <div class="modal">
         <h2>Настройка планера</h2>
-        <p style="margin-bottom: 15px; font-size: 0.85rem; color: #666;">Введите начальные данные для прогноза цикла.</p>
+        <p style="margin-bottom: 15px; font-size: 0.85rem; color: #666;">Введите начальные данные для прогноза цикла. Все сохранится локально на вашем устройстве.</p>
         <form id="survey-form">
           <div class="form-group">
             <label>Дата начала последних месячных:</label>
@@ -465,6 +435,7 @@
       </div>
     </div>
 
+    <!-- Страница: Понедельный планер -->
     <div id="planner-view">
       <div class="card">
         <div class="week-navigation">
@@ -476,6 +447,7 @@
       </div>
     </div>
 
+    <!-- Страница: Календарь -->
     <div id="calendar-view" class="hidden">
       <div class="card">
         <div class="month-picker-container">
@@ -488,97 +460,23 @@
     </div>
   </div>
 
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-app.js";
-    import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-database.js";
-
-    const firebaseConfig = {
-      apiKey: "AIzaSyAW9W3M4p5yHxfwN4lhOot3YWxFoPKciEA",
-      authDomain: "diary-1c00d.firebaseapp.com",
-      databaseURL: "https://diary-1c00d-default-rtdb.europe-west1.firebasedatabase.app",
-      projectId: "diary-1c00d",
-      storageBucket: "diary-1c00d.firebasestorage.app",
-      messagingSenderId: "576706054131",
-      appId: "1:576706054131:web:c8a711d8d429a363dbb486"
-    };
-
-    const app = initializeApp(firebaseConfig);
-    const db = getDatabase(app);
-    const stateRef = ref(db, 'planner_state');
-
+  <script>
+    // --- Состояние приложения ---
     let appState = {
-      userData: null,
-      periodLogs: [],
-      tasks: {},
+      userData: JSON.parse(localStorage.getItem('planner_userData')) || null,
+      periodLogs: JSON.parse(localStorage.getItem('planner_periodLogs')) || [],
+      tasks: JSON.parse(localStorage.getItem('planner_tasks')) || {},
       currentWeekStart: getMonday(new Date()),
       calendarDate: new Date()
     };
 
-    onValue(stateRef, (snapshot) => {
-      const data = snapshot.val();
-      if (data) {
-        appState.userData = data.userData || null;
-        appState.periodLogs = data.periodLogs || [];
-        appState.tasks = data.tasks || {};
-      }
-
+    window.onload = function() {
       if (!appState.userData) {
         document.getElementById('survey-modal').classList.remove('hidden');
       } else {
-        document.getElementById('survey-modal').classList.add('hidden');
-        if (autoRolloverTasks()) {
-          saveData();
-        } else {
-          renderCurrentView();
-        }
-      }
-    });
-
-    function saveData() {
-      set(stateRef, {
-        userData: appState.userData,
-        periodLogs: appState.periodLogs,
-        tasks: appState.tasks
-      });
-    }
-
-    function autoRolloverTasks() {
-      const todayStr = formatDate(new Date());
-      let modified = false;
-
-      Object.keys(appState.tasks).forEach(dateStr => {
-        if (dateStr < todayStr) {
-          const dayTasks = appState.tasks[dateStr];
-          const remainingTasks = [];
-
-          dayTasks.forEach(task => {
-            if (!task.done && !task.fixed) {
-              if (!appState.tasks[todayStr]) appState.tasks[todayStr] = [];
-              appState.tasks[todayStr].push({
-                ...task,
-                isRolledOver: true
-              });
-              modified = true;
-            } else {
-              remainingTasks.push(task);
-            }
-          });
-
-          appState.tasks[dateStr] = remainingTasks;
-        }
-      });
-
-      return modified;
-    }
-
-    function renderCurrentView() {
-      const isPlanner = !document.getElementById('planner-view').classList.contains('hidden');
-      if (isPlanner) {
         renderPlanner();
-      } else {
-        renderCalendar();
       }
-    }
+    };
 
     document.getElementById('survey-form').onsubmit = function(e) {
       e.preventDefault();
@@ -597,6 +495,8 @@
       }
 
       saveData();
+      document.getElementById('survey-modal').classList.add('hidden');
+      renderPlanner();
     };
 
     function getMonday(d) {
@@ -610,6 +510,12 @@
       if (month.length < 2) month = '0' + month;
       if (day.length < 2) day = '0' + day;
       return [year, month, day].join('-');
+    }
+
+    function saveData() {
+      localStorage.setItem('planner_userData', JSON.stringify(appState.userData));
+      localStorage.setItem('planner_periodLogs', JSON.stringify(appState.periodLogs));
+      localStorage.setItem('planner_tasks', JSON.stringify(appState.tasks));
     }
 
     function isPeriodDay(dateStr) {
@@ -632,6 +538,7 @@
 
       while (nextCycleStart <= targetDate) {
         nextCycleStart.setDate(nextCycleStart.getDate() + cycleLen);
+        
         let cycleEnd = new Date(nextCycleStart);
         cycleEnd.setDate(cycleEnd.getDate() + duration - 1);
 
@@ -642,7 +549,7 @@
       return false;
     }
 
-    window.switchView = function(view) {
+    function switchView(view) {
       document.getElementById('planner-view').classList.add('hidden');
       document.getElementById('calendar-view').classList.add('hidden');
       document.getElementById('nav-planner').classList.remove('active');
@@ -657,12 +564,12 @@
         document.getElementById('nav-calendar').classList.add('active');
         renderCalendar();
       }
-    };
+    }
 
-    window.changeWeek = function(offset) {
+    function changeWeek(offset) {
       appState.currentWeekStart.setDate(appState.currentWeekStart.getDate() + (offset * 7));
       renderPlanner();
-    };
+    }
 
     function renderPlanner() {
       const container = document.getElementById('days-container');
@@ -713,20 +620,14 @@
           </div>
           <ul class="task-list" id="tasks-${dateStr}">
             ${dayTasks.map((t, index) => `
-              <li class="task-item ${t.done ? 'completed' : ''} ${t.fixed ? 'is-fixed' : ''}">
+              <li class="task-item ${t.done ? 'completed' : ''}">
                 <input type="checkbox" ${t.done ? 'checked' : ''} onchange="toggleTask('${dateStr}', ${index})">
-                <span class="task-text">${t.text}</span>
-                ${t.isRolledOver ? `<span class="task-tag" title="Перенесено с прошлого дня">↪</span>` : ''}
-                ${t.fixed ? `<span class="task-tag" title="Привязано к дате">📌</span>` : ''}
-                <label class="toggle-switch" title="Не переносить задачу">
-                  <input type="checkbox" ${t.fixed ? 'checked' : ''} onchange="toggleFixedTask('${dateStr}', ${index})">
-                  <span class="toggle-slider"></span>
-                </label>
+                <span>${t.text}</span>
               </li>
             `).join('')}
           </ul>
           <form class="add-task-form" onsubmit="addTask(event, '${dateStr}')">
-            <input type="text" class="task-input" placeholder="Новая задача..." required>
+            <input type="text" placeholder="Новая задача..." required>
             <button type="submit">+</button>
           </form>
         `;
@@ -735,39 +636,26 @@
       }
     }
 
-    window.addTask = function(e, dateStr) {
+    function addTask(e, dateStr) {
       e.preventDefault();
-      const form = e.target;
-      const textInput = form.querySelector('.task-input');
-      const text = textInput.value.trim();
-
+      const input = e.target.querySelector('input');
+      const text = input.value.trim();
       if (!text) return;
 
       if (!appState.tasks[dateStr]) appState.tasks[dateStr] = [];
-      appState.tasks[dateStr].push({ 
-        text: text, 
-        done: false, 
-        fixed: false 
-      });
+      appState.tasks[dateStr].push({ text, done: false });
       
       saveData();
-    };
+      renderPlanner();
+    }
 
-    window.toggleTask = function(dateStr, index) {
-      if (appState.tasks[dateStr] && appState.tasks[dateStr][index]) {
-        appState.tasks[dateStr][index].done = !appState.tasks[dateStr][index].done;
-        saveData();
-      }
-    };
+    function toggleTask(dateStr, index) {
+      appState.tasks[dateStr][index].done = !appState.tasks[dateStr][index].done;
+      saveData();
+      renderPlanner();
+    }
 
-    window.toggleFixedTask = function(dateStr, index) {
-      if (appState.tasks[dateStr] && appState.tasks[dateStr][index]) {
-        appState.tasks[dateStr][index].fixed = !appState.tasks[dateStr][index].fixed;
-        saveData();
-      }
-    };
-
-    window.togglePeriodLog = function(dateStr) {
+    function togglePeriodLog(dateStr) {
       const idx = appState.periodLogs.indexOf(dateStr);
       if (idx > -1) {
         appState.periodLogs.splice(idx, 1);
@@ -775,12 +663,13 @@
         appState.periodLogs.push(dateStr);
       }
       saveData();
-    };
+      renderPlanner();
+    }
 
-    window.changeMonth = function(offset) {
+    function changeMonth(offset) {
       appState.calendarDate.setMonth(appState.calendarDate.getMonth() + offset);
       renderCalendar();
-    };
+    }
 
     function renderCalendar() {
       const grid = document.getElementById('month-grid');
