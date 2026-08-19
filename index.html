@@ -1,681 +1,635 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="ru" class="h-full bg-slate-50">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Мой Планер</title>
-  <style>
-    :root {
-      --soft-pink: #fff0f3;
-      --soft-purple: #f3f0ff;
-      --accent-color: #008080;
-      --deep-accent: #800000;
-      --text-main: #4a4a4a;
-      --white: #ffffff;
-      --button-grad: linear-gradient(to top, #800000 0%, #d63031 100%);
-      
-      /* Нейтральные и спокойные оттенки для цикла */
-      --period-accent: #e8a5b8;
-      --period-subtle-bg: #fdf5f7;
-      --forecast-accent: #d1b3c4;
-      --forecast-subtle-bg: #faf7f9;
-    }
-
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-    }
-
-    body {
-      background-color: var(--soft-pink);
-      color: var(--text-main);
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-    }
-
-    /* Навигация */
-    header {
-      background: var(--white);
-      padding: 15px 20px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.03);
-    }
-
-    header h1 {
-      font-size: 1.2rem;
-      color: var(--deep-accent);
-      font-weight: 600;
-    }
-
-    nav button {
-      background: transparent;
-      border: 1px solid var(--accent-color);
-      color: var(--accent-color);
-      padding: 6px 14px;
-      border-radius: 20px;
-      cursor: pointer;
-      font-size: 0.9rem;
-      transition: all 0.2s;
-    }
-
-    nav button.active, nav button:hover {
-      background: var(--accent-color);
-      color: var(--white);
-    }
-
-    /* Контейнер */
-    .container {
-      max-width: 1000px;
-      width: 100%;
-      margin: 20px auto;
-      padding: 0 15px;
-      flex: 1;
-    }
-
-    .card {
-      background: var(--white);
-      border-radius: 16px;
-      padding: 20px;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.03);
-      margin-bottom: 20px;
-    }
-
-    /* Модальное окно / Опрос */
-    .modal-overlay {
-      position: fixed;
-      top: 0; left: 0; right: 0; bottom: 0;
-      background: rgba(0,0,0,0.4);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      z-index: 1000;
-    }
-
-    .modal {
-      background: var(--white);
-      padding: 30px;
-      border-radius: 20px;
-      max-width: 450px;
-      width: 90%;
-    }
-
-    .modal h2 {
-      color: var(--deep-accent);
-      margin-bottom: 15px;
-    }
-
-    .form-group {
-      margin-bottom: 15px;
-    }
-
-    .form-group label {
-      display: block;
-      margin-bottom: 5px;
-      font-size: 0.9rem;
-    }
-
-    .form-group input {
-      width: 100%;
-      padding: 10px;
-      border: 1px solid #ddd;
-      border-radius: 8px;
-    }
-
-    .btn-submit {
-      background: var(--button-grad);
-      color: var(--white);
-      border: none;
-      padding: 10px 20px;
-      border-radius: 8px;
-      cursor: pointer;
-      width: 100%;
-      font-size: 1rem;
-      margin-top: 10px;
-    }
-
-    /* Навигация по неделям */
-    .week-navigation {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 20px;
-    }
-
-    .week-navigation button {
-      background: var(--soft-purple);
-      border: none;
-      padding: 8px 16px;
-      border-radius: 8px;
-      cursor: pointer;
-      color: var(--text-main);
-    }
-
-    /* Карточки дней */
-    .days-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 15px;
-    }
-
-    .day-card {
-      background: var(--soft-purple);
-      border-radius: 12px;
-      padding: 15px;
-      display: flex;
-      flex-direction: column;
-      position: relative;
-      border-left: 4px solid transparent;
-      transition: all 0.2s ease;
-    }
-
-    /* Элегантное и незаметное выделение */
-    .day-card.is-period {
-      background: var(--period-subtle-bg);
-      border-left-color: var(--period-accent);
-    }
-
-    .day-card.is-forecast {
-      background: var(--forecast-subtle-bg);
-      border-left-color: var(--forecast-accent);
-    }
-
-    .day-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 12px;
-    }
-
-    .day-title {
-      font-weight: 600;
-      font-size: 0.95rem;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .day-actions {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    /* Аккуратная плашка цикла */
-    .cycle-dot-indicator {
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-      font-size: 0.75rem;
-      color: #9e6d79;
-      background: rgba(232, 165, 184, 0.15);
-      padding: 2px 8px;
-      border-radius: 12px;
-    }
-
-    .cycle-dot-indicator.forecast {
-      color: #8c7180;
-      background: rgba(209, 179, 196, 0.15);
-    }
-
-    /* Минималистичная кнопка отметки */
-    .period-toggle-btn {
-      background: transparent;
-      border: none;
-      color: #b5838f;
-      cursor: pointer;
-      font-size: 1rem;
-      padding: 2px 5px;
-      border-radius: 50%;
-      opacity: 0.5;
-      transition: opacity 0.2s;
-    }
-
-    .day-card:hover .period-toggle-btn,
-    .period-toggle-btn.active {
-      opacity: 1;
-    }
-
-    .task-list {
-      list-style: none;
-      margin-bottom: 10px;
-      flex: 1;
-    }
-
-    .task-item {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      margin-bottom: 6px;
-      font-size: 0.9rem;
-    }
-
-    .task-item.completed span {
-      text-decoration: line-through;
-      opacity: 0.5;
-    }
-
-    .add-task-form {
-      display: flex;
-      gap: 5px;
-      margin-top: 10px;
-    }
-
-    .add-task-form input {
-      flex: 1;
-      padding: 6px 10px;
-      border: 1px solid #e0e0e0;
-      border-radius: 6px;
-      font-size: 0.85rem;
-      background: var(--white);
-    }
-
-    .add-task-form button {
-      background: var(--accent-color);
-      color: white;
-      border: none;
-      padding: 6px 12px;
-      border-radius: 6px;
-      cursor: pointer;
-    }
-
-    /* Календарь на месяц */
-    .month-picker-container {
-      display: flex;
-      gap: 15px;
-      align-items: center;
-      margin-bottom: 20px;
-    }
-
-    .month-picker-container button {
-      background: var(--soft-purple);
-      border: none;
-      padding: 6px 12px;
-      border-radius: 6px;
-      cursor: pointer;
-    }
-
-    .month-grid {
-      display: grid;
-      grid-template-columns: repeat(7, 1fr);
-      gap: 6px;
-      text-align: center;
-    }
-
-    .month-day-head {
-      font-weight: 600;
-      padding: 8px;
-      font-size: 0.85rem;
-      color: #888;
-    }
-
-    .month-day {
-      aspect-ratio: 1;
-      border-radius: 8px;
-      background: var(--soft-purple);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      font-size: 0.85rem;
-      position: relative;
-    }
-
-    .month-day.other-month {
-      opacity: 0.25;
-    }
-
-    /* Деликатные маркеры в календаре */
-    .month-day.period {
-      background: var(--period-subtle-bg);
-      font-weight: 600;
-    }
-
-    .month-day.period::after {
-      content: '';
-      width: 5px;
-      height: 5px;
-      background-color: var(--period-accent);
-      border-radius: 50%;
-      position: absolute;
-      bottom: 6px;
-    }
-
-    .month-day.forecast {
-      background: var(--forecast-subtle-bg);
-    }
-
-    .month-day.forecast::after {
-      content: '';
-      width: 4px;
-      height: 4px;
-      border: 1px solid var(--forecast-accent);
-      border-radius: 50%;
-      position: absolute;
-      bottom: 6px;
-    }
-
-    .hidden { display: none !important; }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Еженедельный трекер и расписание</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .custom-scrollbar::-webkit-scrollbar { height: 8px; width: 8px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #f1f5f9; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        .foxford-btn {
+            display: flex;
+            justify-content: center;
+            margin: 60px auto 40px auto;
+        }
+        a.foxford-link {
+            border-radius: 16px;
+            display: block;
+            padding: 18px 60px;
+            background: #423ac0;
+            color: #fff;
+            font-size: 24px;
+            font-weight: 600;
+            text-align: center;
+            transition: all 0.2s ease;
+            box-shadow: 0 10px 25px -5px rgba(66, 58, 192, 0.4);
+        }
+        a.foxford-link:hover {
+            background: #352ea8;
+            transform: translateY(-2px);
+            box-shadow: 0 15px 30px -5px rgba(66, 58, 192, 0.5);
+        }
+    </style>
 </head>
-<body>
+<body class="h-full text-slate-800 antialiased flex flex-col">
 
-  <header>
-    <h1>Мой Планер</h1>
-    <nav>
-      <button id="nav-planner" class="active" onclick="switchView('planner')">Неделя</button>
-      <button id="nav-calendar" onclick="switchView('calendar')">Календарь</button>
-    </nav>
-  </header>
+    <header class="bg-white border-b border-slate-200 sticky top-0 z-20 shadow-sm">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-20">
+                <div class="flex items-center space-x-3.5">
+                    <div class="w-12 h-12 rounded-2xl bg-indigo-600 flex items-center justify-center text-white shadow-md shadow-indigo-200">
+                        <i class="fa-solid fa-graduation-cap text-2xl"></i>
+                    </div>
+                    <div>
+                        <h1 class="font-bold text-slate-900 text-2xl leading-tight">Школьный Трекер</h1>
+                        <p class="text-sm text-slate-500 font-medium">Расписание и задания на неделю</p>
+                    </div>
+                </div>
 
-  <div class="container">
-    <!-- Первоначальный опрос -->
-    <div id="survey-modal" class="modal-overlay hidden">
-      <div class="modal">
-        <h2>Настройка планера</h2>
-        <p style="margin-bottom: 15px; font-size: 0.85rem; color: #666;">Введите начальные данные для прогноза цикла. Все сохранится локально на вашем устройстве.</p>
-        <form id="survey-form">
-          <div class="form-group">
-            <label>Дата начала последних месячных:</label>
-            <input type="date" id="last-period-date" required>
-          </div>
-          <div class="form-group">
-            <label>Средняя длина цикла (дней):</label>
-            <input type="number" id="cycle-length" value="28" min="15" max="60" required>
-          </div>
-          <div class="form-group">
-            <label>Длительность (дней):</label>
-            <input type="number" id="period-duration" value="5" min="1" max="10" required>
-          </div>
-          <button type="submit" class="btn-submit">Сохранить</button>
-        </form>
-      </div>
-    </div>
-
-    <!-- Страница: Понедельный планер -->
-    <div id="planner-view">
-      <div class="card">
-        <div class="week-navigation">
-          <button onclick="changeWeek(-1)">← Пред. неделя</button>
-          <span id="current-week-label" style="font-weight: 600; font-size: 0.95rem;">-</span>
-          <button onclick="changeWeek(1)">След. неделя →</button>
+                <button id="reset-day-btn" onclick="resetCurrentDay()" class="text-sm font-semibold text-slate-600 hover:text-indigo-600 bg-slate-100 hover:bg-indigo-50 px-4 py-2.5 rounded-xl transition flex items-center gap-2">
+                    <i class="fa-solid fa-rotate-right text-base"></i> Сбросить день
+                </button>
+            </div>
         </div>
-        <div class="days-grid" id="days-container"></div>
-      </div>
-    </div>
+    </header>
 
-    <!-- Страница: Календарь -->
-    <div id="calendar-view" class="hidden">
-      <div class="card">
-        <div class="month-picker-container">
-          <button onclick="changeMonth(-1)">←</button>
-          <h2 id="calendar-month-label" style="font-size: 1.1rem; font-weight: 600;">Месяц</h2>
-          <button onclick="changeMonth(1)">→</button>
-        </div>
-        <div class="month-grid" id="month-grid"></div>
-      </div>
-    </div>
-  </div>
-
-  <script>
-    // --- Состояние приложения ---
-    let appState = {
-      userData: JSON.parse(localStorage.getItem('planner_userData')) || null,
-      periodLogs: JSON.parse(localStorage.getItem('planner_periodLogs')) || [],
-      tasks: JSON.parse(localStorage.getItem('planner_tasks')) || {},
-      currentWeekStart: getMonday(new Date()),
-      calendarDate: new Date()
-    };
-
-    window.onload = function() {
-      if (!appState.userData) {
-        document.getElementById('survey-modal').classList.remove('hidden');
-      } else {
-        renderPlanner();
-      }
-    };
-
-    document.getElementById('survey-form').onsubmit = function(e) {
-      e.preventDefault();
-      const lastDate = document.getElementById('last-period-date').value;
-      const cycleLen = parseInt(document.getElementById('cycle-length').value);
-      const duration = parseInt(document.getElementById('period-duration').value);
-
-      appState.userData = { cycleLength: cycleLen, periodDuration: duration };
-      
-      appState.periodLogs = [];
-      let startDate = new Date(lastDate);
-      for (let i = 0; i < duration; i++) {
-        let d = new Date(startDate);
-        d.setDate(d.getDate() + i);
-        appState.periodLogs.push(formatDate(d));
-      }
-
-      saveData();
-      document.getElementById('survey-modal').classList.add('hidden');
-      renderPlanner();
-    };
-
-    function getMonday(d) {
-      d = new Date(d);
-      let day = d.getDay(), diff = d.getDate() - day + (day === 0 ? -6 : 1);
-      return new Date(d.setDate(diff));
-    }
-
-    function formatDate(date) {
-      let d = new Date(date), month = '' + (d.getMonth() + 1), day = '' + d.getDate(), year = d.getFullYear();
-      if (month.length < 2) month = '0' + month;
-      if (day.length < 2) day = '0' + day;
-      return [year, month, day].join('-');
-    }
-
-    function saveData() {
-      localStorage.setItem('planner_userData', JSON.stringify(appState.userData));
-      localStorage.setItem('planner_periodLogs', JSON.stringify(appState.periodLogs));
-      localStorage.setItem('planner_tasks', JSON.stringify(appState.tasks));
-    }
-
-    function isPeriodDay(dateStr) {
-      return appState.periodLogs.includes(dateStr);
-    }
-
-    function isForecastDay(dateStr) {
-      if (!appState.userData || appState.periodLogs.length === 0) return false;
-      
-      const sortedLogs = [...appState.periodLogs].sort();
-      const lastLoggedDate = new Date(sortedLogs[sortedLogs.length - 1]);
-      const targetDate = new Date(dateStr);
-
-      if (targetDate <= lastLoggedDate) return false;
-
-      const firstDayOfLastPeriod = new Date(sortedLogs[0]); 
-      let nextCycleStart = new Date(firstDayOfLastPeriod);
-      const cycleLen = appState.userData.cycleLength;
-      const duration = appState.userData.periodDuration;
-
-      while (nextCycleStart <= targetDate) {
-        nextCycleStart.setDate(nextCycleStart.getDate() + cycleLen);
+    <main class="flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
         
-        let cycleEnd = new Date(nextCycleStart);
-        cycleEnd.setDate(cycleEnd.getDate() + duration - 1);
-
-        if (targetDate >= nextCycleStart && targetDate <= cycleEnd) {
-          return true;
-        }
-      }
-      return false;
-    }
-
-    function switchView(view) {
-      document.getElementById('planner-view').classList.add('hidden');
-      document.getElementById('calendar-view').classList.add('hidden');
-      document.getElementById('nav-planner').classList.remove('active');
-      document.getElementById('nav-calendar').classList.remove('active');
-
-      if (view === 'planner') {
-        document.getElementById('planner-view').classList.remove('hidden');
-        document.getElementById('nav-planner').classList.add('active');
-        renderPlanner();
-      } else {
-        document.getElementById('calendar-view').classList.remove('hidden');
-        document.getElementById('nav-calendar').classList.add('active');
-        renderCalendar();
-      }
-    }
-
-    function changeWeek(offset) {
-      appState.currentWeekStart.setDate(appState.currentWeekStart.getDate() + (offset * 7));
-      renderPlanner();
-    }
-
-    function renderPlanner() {
-      const container = document.getElementById('days-container');
-      container.innerHTML = '';
-
-      const weekStart = new Date(appState.currentWeekStart);
-      const weekEnd = new Date(weekStart);
-      weekEnd.setDate(weekEnd.getDate() + 6);
-
-      document.getElementById('current-week-label').innerText = 
-        `${weekStart.toLocaleDateString('ru-RU', {day: 'numeric', month: 'short'})} - ${weekEnd.toLocaleDateString('ru-RU', {day: 'numeric', month: 'short', year: 'numeric'})}`;
-
-      const daysOfWeek = ['Понедельник', 'Вторник', 'Среда', 'Четверг', 'Пятница', 'Суббота', 'Воскресенье'];
-
-      for (let i = 0; i < 7; i++) {
-        const currentDate = new Date(weekStart);
-        currentDate.setDate(currentDate.getDate() + i);
-        const dateStr = formatDate(currentDate);
-
-        const isPeriod = isPeriodDay(dateStr);
-        const isForecast = !isPeriod && isForecastDay(dateStr);
-
-        const dayCard = document.createElement('div');
-        dayCard.className = `day-card ${isPeriod ? 'is-period' : ''} ${isForecast ? 'is-forecast' : ''}`;
-
-        let indicatorHtml = '';
-        if (isPeriod) {
-          indicatorHtml = `<span class="cycle-dot-indicator">• цикл</span>`;
-        } else if (isForecast) {
-          indicatorHtml = `<span class="cycle-dot-indicator forecast">• прогноз</span>`;
-        }
-
-        const dayTasks = appState.tasks[dateStr] || [];
-
-        dayCard.innerHTML = `
-          <div class="day-header">
-            <div class="day-title">
-              <span>${daysOfWeek[i]}, ${currentDate.getDate()}</span>
-              ${indicatorHtml}
+        <!-- Days Selector -->
+        <div class="bg-white p-2.5 rounded-2xl border border-slate-200/80 shadow-sm overflow-x-auto custom-scrollbar">
+            <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-2 min-w-[700px] lg:min-w-0" id="days-nav">
+                <!-- Day buttons will be generated by JS -->
             </div>
-            <div class="day-actions">
-              <button class="period-toggle-btn ${isPeriod ? 'active' : ''}" 
-                      title="${isPeriod ? 'Снять отметку' : 'Отметить день'}" 
-                      onclick="togglePeriodLog('${dateStr}')">
-                🌸
-              </button>
+        </div>
+
+        <!-- Progress Card -->
+        <div class="bg-gradient-to-r from-indigo-600 to-indigo-800 rounded-2xl p-7 text-white shadow-lg shadow-indigo-100 relative overflow-hidden">
+            <div class="absolute -right-10 -bottom-10 w-48 h-48 bg-white/10 rounded-full blur-2xl pointer-events-none"></div>
+            
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-6 relative z-10">
+                <div>
+                    <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/15 text-sm font-semibold mb-2.5 backdrop-blur-sm">
+                        <i class="fa-regular fa-calendar text-indigo-200 text-base"></i>
+                        <span id="current-day-title">Понедельник</span>
+                    </div>
+                    <h2 class="text-3xl sm:text-4xl font-bold tracking-tight">Прогресс дня</h2>
+                    <p id="progress-message" class="text-indigo-100 text-base sm:text-lg mt-1.5">Отмечай выполненные уроки и задания!</p>
+                </div>
+
+                <div class="flex items-center gap-5 bg-white/10 p-4 rounded-2xl backdrop-blur-md border border-white/10 min-w-[260px]">
+                    <div class="relative w-20 h-20 flex items-center justify-center shrink-0">
+                        <svg class="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
+                            <path class="text-indigo-900/40" stroke-width="3.5" stroke="currentColor" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                            <path id="progress-circle" class="text-emerald-400 transition-all duration-500 ease-out" stroke-dasharray="0, 100" stroke-width="3.5" stroke-linecap="round" stroke="currentColor" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                        </svg>
+                        <span id="progress-percent" class="absolute font-bold text-base sm:text-lg">0%</span>
+                    </div>
+                    <div>
+                        <div class="text-sm text-indigo-200 font-medium">Завершено задач</div>
+                        <div class="text-xl sm:text-2xl font-bold" id="progress-ratio">0 из 0</div>
+                    </div>
+                </div>
             </div>
-          </div>
-          <ul class="task-list" id="tasks-${dateStr}">
-            ${dayTasks.map((t, index) => `
-              <li class="task-item ${t.done ? 'completed' : ''}">
-                <input type="checkbox" ${t.done ? 'checked' : ''} onchange="toggleTask('${dateStr}', ${index})">
-                <span>${t.text}</span>
-              </li>
-            `).join('')}
-          </ul>
-          <form class="add-task-form" onsubmit="addTask(event, '${dateStr}')">
-            <input type="text" placeholder="Новая задача..." required>
-            <button type="submit">+</button>
-          </form>
-        `;
+        </div>
 
-        container.appendChild(dayCard);
-      }
-    }
+        <div class="grid grid-cols-1 lg:grid-cols-2 items-start gap-8">
+            
+            <!-- COLUMN 1: School Timetable -->
+            <section class="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-6 flex flex-col">
+                <div class="flex items-center justify-between pb-4 mb-5 border-b border-slate-100">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center">
+                            <i class="fa-solid fa-graduation-cap text-lg"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-slate-800 text-xl leading-none">Уроки в школе</h3>
+                            <span class="text-xs sm:text-sm text-slate-400">Школьное расписание</span>
+                        </div>
+                    </div>
+                    <button onclick="openModal('lesson')" class="text-sm font-semibold text-blue-600 hover:text-blue-700 bg-blue-50 hover:bg-blue-100 px-4 py-2 rounded-xl transition flex items-center gap-1.5">
+                        <i class="fa-solid fa-plus"></i> Урок
+                    </button>
+                </div>
 
-    function addTask(e, dateStr) {
-      e.preventDefault();
-      const input = e.target.querySelector('input');
-      const text = input.value.trim();
-      if (!text) return;
+                <div id="lessons-list" class="space-y-3">
+                    <!-- Lessons rendered here -->
+                </div>
+            </section>
 
-      if (!appState.tasks[dateStr]) appState.tasks[dateStr] = [];
-      appState.tasks[dateStr].push({ text, done: false });
-      
-      saveData();
-      renderPlanner();
-    }
+            <!-- COLUMN 2: Homework & Tasks -->
+            <section class="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-6 flex flex-col">
+                <div class="flex items-center justify-between pb-4 mb-5 border-b border-slate-100">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center">
+                            <i class="fa-solid fa-book-bookmark text-lg"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-slate-800 text-xl leading-none">Домашние задания</h3>
+                            <span class="text-xs sm:text-sm text-slate-400">Задания по предметам</span>
+                        </div>
+                    </div>
+                    <button onclick="openModal('homework')" class="text-sm font-semibold text-amber-600 hover:text-amber-700 bg-amber-50 hover:bg-amber-100 px-4 py-2 rounded-xl transition flex items-center gap-1.5">
+                        <i class="fa-solid fa-plus"></i> ДЗ
+                    </button>
+                </div>
 
-    function toggleTask(dateStr, index) {
-      appState.tasks[dateStr][index].done = !appState.tasks[dateStr][index].done;
-      saveData();
-      renderPlanner();
-    }
+                <div id="homework-list" class="space-y-3">
+                    <!-- Homework rendered here -->
+                </div>
+            </section>
 
-    function togglePeriodLog(dateStr) {
-      const idx = appState.periodLogs.indexOf(dateStr);
-      if (idx > -1) {
-        appState.periodLogs.splice(idx, 1);
-      } else {
-        appState.periodLogs.push(dateStr);
-      }
-      saveData();
-      renderPlanner();
-    }
+        </div>
 
-    function changeMonth(offset) {
-      appState.calendarDate.setMonth(appState.calendarDate.getMonth() + offset);
-      renderCalendar();
-    }
+        <!-- Daily Routines / Extra Tasks Section -->
+        <section class="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-6">
+            <div class="flex items-center justify-between pb-4 mb-4 border-b border-slate-100">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
+                        <i class="fa-solid fa-list-check text-lg"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-slate-800 text-xl leading-none">Другие дела и привычки</h3>
+                        <span class="text-xs sm:text-sm text-slate-400">Кружки, спорт, быт и личные задачи</span>
+                    </div>
+                </div>
+                <button onclick="openModal('habit')" class="text-sm font-semibold text-emerald-600 hover:text-emerald-700 bg-emerald-50 hover:bg-emerald-100 px-4 py-2 rounded-xl transition flex items-center gap-1.5">
+                    <i class="fa-solid fa-plus"></i> Добавить дело
+                </button>
+            </div>
 
-    function renderCalendar() {
-      const grid = document.getElementById('month-grid');
-      grid.innerHTML = '';
+            <div id="habits-list" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5">
+                <!-- Habits rendered here -->
+            </div>
+        </section>
 
-      const year = appState.calendarDate.getFullYear();
-      const month = appState.calendarDate.getMonth();
+        <!-- Foxford Link Button -->
+        <div class="foxford-btn">
+            <a class="foxford-link" href="https://foxford.ru/elementary/dashboard" target="_blank" rel="noopener noreferrer">Перейти в Фоксфорд</a>
+        </div>
 
-      document.getElementById('calendar-month-label').innerText = 
-        new Date(year, month).toLocaleDateString('ru-RU', { month: 'long', year: 'numeric' });
+    </main>
 
-      const headers = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
-      headers.forEach(h => {
-        const div = document.createElement('div');
-        div.className = 'month-day-head';
-        div.innerText = h;
-        grid.appendChild(div);
-      });
+    <!-- Modal Dialog -->
+    <div id="modal-overlay" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-xl border border-slate-100 max-w-md w-full p-7 relative transform transition-all scale-100 max-h-[90vh] overflow-y-auto custom-scrollbar">
+            
+            <div class="flex items-center justify-between pb-4 border-b border-slate-100 mb-5">
+                <h3 id="modal-title" class="font-bold text-slate-800 text-2xl">Добавить запись</h3>
+                <button onclick="closeModal()" class="text-slate-400 hover:text-slate-600 p-1.5 rounded-lg">
+                    <i class="fa-solid fa-xmark text-xl"></i>
+                </button>
+            </div>
 
-      const firstDayOfMonth = new Date(year, month, 1);
-      const startingDay = (firstDayOfMonth.getDay() + 6) % 7;
-      const daysInMonth = new Date(year, month + 1, 0).getDate();
+            <form id="modal-form" onsubmit="handleFormSubmit(event)" class="space-y-5">
+                <input type="hidden" id="item-type" value="lesson">
 
-      for (let i = 0; i < startingDay; i++) {
-        const div = document.createElement('div');
-        div.className = 'month-day other-month';
-        grid.appendChild(div);
-      }
+                <!-- Dynamic inputs based on type -->
+                <div id="form-fields" class="space-y-4">
+                    <!-- Fields injected via JS -->
+                </div>
 
-      for (let day = 1; day <= daysInMonth; day++) {
-        const curr = new Date(year, month, day);
-        const dateStr = formatDate(curr);
+                <!-- Days Selector Block -->
+                <div class="border-t border-slate-100 pt-4">
+                    <label class="block text-sm font-semibold text-slate-700 mb-2">В какие дни добавить?</label>
+                    <div class="grid grid-cols-2 gap-2 text-sm text-slate-600" id="days-checkboxes">
+                        <!-- Checkboxes injected via JS -->
+                    </div>
+                </div>
 
-        const isPeriod = isPeriodDay(dateStr);
-        const isForecast = !isPeriod && isForecastDay(dateStr);
+                <div class="flex justify-end gap-3 pt-3 border-t border-slate-100">
+                    <button type="button" onclick="closeModal()" class="px-5 py-2.5 rounded-xl text-base font-semibold text-slate-600 hover:bg-slate-100 transition">
+                        Отмена
+                    </button>
+                    <button type="submit" class="px-5 py-2.5 rounded-xl text-base font-semibold text-white bg-indigo-600 hover:bg-indigo-700 shadow-md shadow-indigo-100 transition">
+                        Сохранить
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
 
-        const div = document.createElement('div');
-        div.className = `month-day ${isPeriod ? 'period' : ''} ${isForecast ? 'forecast' : ''}`;
-        div.innerHTML = `<span>${day}</span>`;
-        if (isPeriod || isForecast) {
-          div.title = isPeriod ? 'Цикл' : 'Прогноз';
+    <!-- Firebase Realtime Database SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+
+    <script>
+        // Конфигурация Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyAW9W3M4p5yHxfwN4lhOot3YWxFoPKciEA",
+            authDomain: "diary-1c00d.firebaseapp.com",
+            databaseURL: "https://diary-1c00d-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "diary-1c00d",
+            storageBucket: "diary-1c00d.appspot.com",
+            messagingSenderId: "576706054131",
+            appId: "1:576706054131:web:c8a711d8d429a363dbb486"
+        };
+
+        // Инициализация Firebase
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+        const trackerRef = database.ref('school_tracker_data');
+
+        // Days definition
+        const DAYS = [
+            { id: 'mon', name: 'Понедельник', short: 'ПН' },
+            { id: 'tue', name: 'Вторник', short: 'ВТ' },
+            { id: 'wed', name: 'Среда', short: 'СР' },
+            { id: 'thu', name: 'Четверг', short: 'ЧТ' },
+            { id: 'fri', name: 'Пятница', short: 'ПТ' },
+            { id: 'sat', name: 'Суббота', short: 'СБ' },
+            { id: 'sun', name: 'Воскресенье', short: 'ВС' }
+        ];
+
+        // Initial Default Data
+        const DEFAULT_DATA = {
+            mon: {
+                lessons: [
+                    { id: 'l1', time: '08:30 - 09:15', name: 'Математика', done: true },
+                    { id: 'l2', time: '09:25 - 10:10', name: 'Русский язык', done: true },
+                    { id: 'l3', time: '10:25 - 11:10', name: 'Физика', done: false },
+                    { id: 'l4', time: '11:30 - 12:15', name: 'История', done: false },
+                    { id: 'l5', time: '12:35 - 13:20', name: 'Английский язык', done: false }
+                ],
+                homework: [
+                    { id: 'h1', subject: 'Математика', task: 'Стр. 84 №12, №15 (б)', done: true },
+                    { id: 'h2', subject: 'Физика', task: 'Параграф 14, выучить формулы', done: false },
+                    { id: 'h3', subject: 'История', task: 'Подготовить доклад про Петра I', done: false }
+                ],
+                habits: [
+                    { id: 'b1', title: 'Тренировка по футболу', category: 'sport', time: '16:00', done: false },
+                    { id: 'b2', title: 'Почитать книгу 20 минут', category: 'habit', time: '', done: true },
+                    { id: 'b3', title: 'Собрать портфель на завтра', category: 'task', time: '20:00', done: true }
+                ]
+            },
+            tue: {
+                lessons: [
+                    { id: 'l1', time: '08:30 - 09:15', name: 'Литература', done: false },
+                    { id: 'l2', time: '09:25 - 10:10', name: 'Биология', done: false },
+                    { id: 'l3', time: '10:25 - 11:10', name: 'Математика', done: false }
+                ],
+                homework: [
+                    { id: 'h1', subject: 'Литература', task: 'Прочитать главы 3-5', done: false }
+                ],
+                habits: [
+                    { id: 'b1', title: 'Урок рисования в изостудии', category: 'hobby', time: '15:30', done: false }
+                ]
+            }
+        };
+
+        let activeDay = 'mon';
+        let trackerData = {};
+
+        // Подписка на обновления из Firebase (Realtime Sync)
+        trackerRef.on('value', (snapshot) => {
+            const data = snapshot.val();
+            if (data) {
+                trackerData = data;
+            } else {
+                trackerData = DEFAULT_DATA;
+                saveData(); // Заполняем базу начальными данными
+            }
+
+            DAYS.forEach(day => {
+                if (!trackerData[day.id]) {
+                    trackerData[day.id] = { lessons: [], homework: [], habits: [] };
+                }
+            });
+
+            initDaysNav();
+            render();
+        });
+
+        function saveData() {
+            trackerRef.set(trackerData);
         }
-        grid.appendChild(div);
-      }
-    }
-  </script>
+
+        function initDaysNav() {
+            const navContainer = document.getElementById('days-nav');
+            navContainer.innerHTML = DAYS.map(day => {
+                const isActive = day.id === activeDay;
+                return `
+                    <button onclick="switchDay('${day.id}')" class="flex items-center justify-center py-3 px-3 rounded-xl transition ${
+                        isActive 
+                        ? 'bg-indigo-600 text-white shadow-md shadow-indigo-100 font-semibold' 
+                        : 'hover:bg-slate-100 text-slate-600'
+                    }">
+                        <span class="text-base sm:text-lg font-medium text-center truncate">${day.name}</span>
+                    </button>
+                `;
+            }).join('');
+        }
+
+        function switchDay(dayId) {
+            activeDay = dayId;
+            initDaysNav();
+            render();
+        }
+
+        function calculateProgress() {
+            const dayData = trackerData[activeDay] || { lessons: [], homework: [], habits: [] };
+            const allItems = [
+                ...(dayData.lessons || []),
+                ...(dayData.homework || []),
+                ...(dayData.habits || [])
+            ];
+
+            const total = allItems.length;
+            const completed = allItems.filter(i => i.done).length;
+            const percentage = total === 0 ? 0 : Math.round((completed / total) * 100);
+
+            document.getElementById('progress-percent').innerText = `${percentage}%`;
+            document.getElementById('progress-ratio').innerText = `${completed} из ${total}`;
+            
+            const circle = document.getElementById('progress-circle');
+            circle.setAttribute('stroke-dasharray', `${percentage}, 100`);
+
+            const msgEl = document.getElementById('progress-message');
+            if (total === 0) {
+                msgEl.innerText = 'На этот день пока нет запланированных дел.';
+            } else if (percentage === 100) {
+                msgEl.innerText = '🎉 Отличная работа! Все дела и уроки выполнены!';
+            } else if (percentage >= 50) {
+                msgEl.innerText = '⚡ Хороший темп! Уже больше половины сделано.';
+            } else {
+                msgEl.innerText = '💪 Хорошее начало, продолжай в том же духе!';
+            }
+        }
+
+        function renderLessons() {
+            const container = document.getElementById('lessons-list');
+            const lessons = trackerData[activeDay]?.lessons || [];
+
+            if (lessons.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-12 text-slate-400">
+                        <i class="fa-solid fa-calendar-xmark text-4xl mb-3 opacity-50"></i>
+                        <p class="text-base">Нет уроков в этот день</p>
+                    </div>`;
+                return;
+            }
+
+            container.innerHTML = lessons.map((lesson, idx) => `
+                <div class="flex items-center justify-between p-4 rounded-xl border-l-4 ${lesson.done ? 'border-l-slate-300 bg-slate-50 text-slate-400 border-t border-r border-b border-slate-200' : 'border-l-blue-500 bg-blue-50/30 border-t border-r border-b border-blue-100/80 text-slate-800'} transition hover:shadow-sm">
+                    <div class="flex items-center gap-3.5 min-w-0">
+                        <button onclick="toggleItem('lessons', '${lesson.id}')" class="w-7 h-7 rounded-lg border ${lesson.done ? 'bg-slate-400 border-slate-400 text-white' : 'border-blue-300 bg-white text-blue-600 hover:border-blue-500'} flex items-center justify-center shrink-0 transition">
+                            ${lesson.done ? '<i class="fa-solid fa-check text-sm"></i>' : ''}
+                        </button>
+                        <div class="min-w-0">
+                            <div class="flex items-center gap-2.5">
+                                <span class="text-xs font-bold uppercase tracking-wider px-2 py-0.5 rounded ${lesson.done ? 'bg-slate-200 text-slate-500' : 'bg-blue-100 text-blue-700'}">${idx + 1} урок</span>
+                                <h4 class="font-bold text-base sm:text-lg truncate ${lesson.done ? 'line-through text-slate-400' : 'text-slate-800'}">${lesson.name}</h4>
+                            </div>
+                            <div class="flex items-center gap-2 text-sm text-slate-500 mt-1">
+                                <span class="inline-flex items-center gap-1.5 font-medium"><i class="fa-regular fa-clock text-blue-500 text-sm"></i>${lesson.time}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <button onclick="deleteItem('lessons', '${lesson.id}')" class="text-slate-300 hover:text-rose-500 p-2 transition">
+                        <i class="fa-regular fa-trash-can text-base"></i>
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        function renderHomework() {
+            const container = document.getElementById('homework-list');
+            const homework = trackerData[activeDay]?.homework || [];
+
+            if (homework.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-12 text-slate-400">
+                        <i class="fa-solid fa-clipboard-check text-4xl mb-3 opacity-50"></i>
+                        <p class="text-base">Домашних заданий нет!</p>
+                    </div>`;
+                return;
+            }
+
+            container.innerHTML = homework.map(hw => `
+                <div class="p-4 rounded-xl border-l-4 ${hw.done ? 'border-l-slate-300 bg-slate-50 border-t border-r border-b border-slate-200' : 'border-l-amber-500 bg-amber-50/20 border-t border-r border-b border-amber-100/80'} transition hover:shadow-sm">
+                    <div class="flex items-start justify-between gap-3">
+                        <div class="flex items-start gap-3.5 min-w-0">
+                            <button onclick="toggleItem('homework', '${hw.id}')" class="mt-0.5 w-7 h-7 rounded-lg border ${hw.done ? 'bg-slate-400 border-slate-400 text-white' : 'border-amber-300 bg-white text-amber-600 hover:border-amber-500'} flex items-center justify-center shrink-0 transition">
+                                ${hw.done ? '<i class="fa-solid fa-check text-sm"></i>' : ''}
+                            </button>
+                            <div class="space-y-1.5">
+                                <div class="flex items-center gap-2.5 flex-wrap">
+                                    <span class="font-bold text-sm px-2.5 py-0.5 rounded bg-amber-100/80 text-amber-900 border border-amber-200/60">${hw.subject}</span>
+                                </div>
+                                <p class="text-base sm:text-lg ${hw.done ? 'line-through text-slate-400' : 'text-slate-800 font-medium'} leading-relaxed">${hw.task}</p>
+                            </div>
+                        </div>
+                        <button onclick="deleteItem('homework', '${hw.id}')" class="text-slate-300 hover:text-rose-500 p-2 transition shrink-0">
+                            <i class="fa-regular fa-trash-can text-base"></i>
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function renderHabits() {
+            const container = document.getElementById('habits-list');
+            const habits = trackerData[activeDay]?.habits || [];
+
+            if (habits.length === 0) {
+                container.innerHTML = `
+                    <div class="col-span-full text-center py-8 text-slate-400 text-base">
+                        Другие дела не добавлены. Добавьте кружок, спорт или привычку!
+                    </div>`;
+                return;
+            }
+
+            const categoryInfo = {
+                sport: { label: '⚽ Спорт / Секция', class: 'bg-emerald-100 text-emerald-800 border-emerald-200' },
+                hobby: { label: '🎨 Кружок / Хобби', class: 'bg-purple-100 text-purple-800 border-purple-200' },
+                task: { label: '📌 Дело / Быт', class: 'bg-blue-100 text-blue-800 border-blue-200' },
+                habit: { label: '🌱 Привычка', class: 'bg-teal-100 text-teal-800 border-teal-200' }
+            };
+
+            container.innerHTML = habits.map(habit => {
+                const cat = categoryInfo[habit.category] || categoryInfo.task;
+                return `
+                    <div onclick="toggleItem('habits', '${habit.id}')" class="cursor-pointer flex items-center justify-between p-3.5 rounded-xl border-l-4 ${habit.done ? 'border-l-slate-300 bg-slate-50 border-t border-r border-b border-slate-200 text-slate-400' : 'border-l-emerald-500 bg-emerald-50/20 border-t border-r border-b border-emerald-100/80 text-slate-800 hover:border-slate-300'} transition">
+                        <div class="flex items-center gap-3.5 min-w-0">
+                            <div class="w-6 h-6 rounded-md border ${habit.done ? 'bg-slate-400 border-slate-400 text-white' : 'border-emerald-400 bg-white text-emerald-600'} flex items-center justify-center shrink-0">
+                                ${habit.done ? '<i class="fa-solid fa-check text-xs"></i>' : ''}
+                            </div>
+                            <div class="min-w-0">
+                                <div class="flex items-center gap-2 flex-wrap">
+                                    <span class="text-xs font-bold px-2 py-0.5 rounded border ${cat.class}">${cat.label}</span>
+                                    ${habit.time ? `<span class="text-xs text-slate-400"><i class="fa-regular fa-clock mr-1"></i>${habit.time}</span>` : ''}
+                                </div>
+                                <span class="text-sm sm:text-base font-semibold truncate block mt-1 ${habit.done ? 'line-through text-slate-400' : 'text-slate-800'}">${habit.title}</span>
+                            </div>
+                        </div>
+                        <button onclick="event.stopPropagation(); deleteItem('habits', '${habit.id}')" class="text-slate-300 hover:text-rose-500 p-1.5 transition shrink-0">
+                            <i class="fa-regular fa-trash-can text-sm"></i>
+                        </button>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function render() {
+            const dayObj = DAYS.find(d => d.id === activeDay);
+            document.getElementById('current-day-title').innerText = dayObj ? dayObj.name : '';
+            
+            renderLessons();
+            renderHomework();
+            renderHabits();
+            calculateProgress();
+        }
+
+        function toggleItem(type, id) {
+            const list = trackerData[activeDay][type];
+            const item = list.find(i => i.id === id);
+            if (item) {
+                item.done = !item.done;
+                saveData();
+            }
+        }
+
+        function deleteItem(type, id) {
+            trackerData[activeDay][type] = trackerData[activeDay][type].filter(i => i.id !== id);
+            saveData();
+        }
+
+        function resetCurrentDay() {
+            if (trackerData[activeDay]) {
+                ['lessons', 'homework', 'habits'].forEach(type => {
+                    (trackerData[activeDay][type] || []).forEach(i => i.done = false);
+                });
+                saveData();
+            }
+        }
+
+        function renderDaysCheckboxes() {
+            const container = document.getElementById('days-checkboxes');
+            let html = `
+                <label class="col-span-2 flex items-center gap-2 font-medium pb-1 border-b border-slate-100 text-indigo-600 cursor-pointer">
+                    <input type="checkbox" id="select-all-days" onchange="toggleSelectAllDays(this)" class="w-4 h-4 rounded text-indigo-600 focus:ring-indigo-500 border-slate-300">
+                    <span>Выбрать все дни</span>
+                </label>
+            `;
+            html += DAYS.map(day => `
+                <label class="flex items-center gap-2 cursor-pointer hover:text-slate-900 transition">
+                    <input type="checkbox" name="target-day" value="${day.id}" ${day.id === activeDay ? 'checked' : ''} class="day-checkbox w-4 h-4 rounded text-indigo-600 focus:ring-indigo-500 border-slate-300">
+                    <span>${day.name}</span>
+                </label>
+            `).join('');
+            container.innerHTML = html;
+        }
+
+        function toggleSelectAllDays(master) {
+            const checkboxes = document.querySelectorAll('.day-checkbox');
+            checkboxes.forEach(cb => cb.checked = master.checked);
+        }
+
+        function openModal(type) {
+            const overlay = document.getElementById('modal-overlay');
+            const titleEl = document.getElementById('modal-title');
+            const fieldsEl = document.getElementById('form-fields');
+            document.getElementById('item-type').value = type;
+
+            if (type === 'lesson') {
+                titleEl.innerText = 'Добавить урок в школе';
+                fieldsEl.innerHTML = `
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-600 mb-1.5">Название школьного предмета</label>
+                        <input type="text" id="field-name" required placeholder="Напр. Математика, Физика..." class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-base focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-600 mb-1.5">Время урока</label>
+                        <input type="text" id="field-time" placeholder="08:30 - 09:15" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-base focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                `;
+            } else if (type === 'homework') {
+                titleEl.innerText = 'Добавить домашнее задание';
+                fieldsEl.innerHTML = `
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-600 mb-1.5">Предмет</label>
+                        <input type="text" id="field-subject" required placeholder="Напр. История, Алгебра..." class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-base focus:outline-none focus:ring-2 focus:ring-amber-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-600 mb-1.5">Что нужно сделать?</label>
+                        <textarea id="field-task" required placeholder="Прочитать §12, решить №4-6..." rows="3" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-base focus:outline-none focus:ring-2 focus:ring-amber-500"></textarea>
+                    </div>
+                `;
+            } else if (type === 'habit') {
+                titleEl.innerText = 'Добавить другое дело или кружок';
+                fieldsEl.innerHTML = `
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-600 mb-1.5">Название дела или занятия</label>
+                        <input type="text" id="field-title" required placeholder="Напр. Тренировка по футболу, Уборка..." class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-base focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-600 mb-1.5">Категория</label>
+                        <select id="field-category" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-base focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                            <option value="sport">⚽ Спорт / Секция</option>
+                            <option value="hobby">🎨 Кружок / Хобби</option>
+                            <option value="task" selected>📌 Личное дело / Быт</option>
+                            <option value="habit">🌱 Привычка</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold text-slate-600 mb-1.5">Время (необязательно)</label>
+                        <input type="text" id="field-habit-time" placeholder="16:00" class="w-full px-4 py-2.5 rounded-xl border border-slate-200 text-base focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                    </div>
+                `;
+            }
+
+            renderDaysCheckboxes();
+            overlay.classList.remove('hidden');
+        }
+
+        function closeModal() {
+            const overlay = document.getElementById('modal-overlay');
+            overlay.classList.add('hidden');
+            document.getElementById('modal-form').reset();
+        }
+
+        function handleFormSubmit(event) {
+            event.preventDefault();
+            const type = document.getElementById('item-type').value;
+            
+            const selectedDays = Array.from(document.querySelectorAll('.day-checkbox:checked')).map(cb => cb.value);
+
+            if (selectedDays.length === 0) {
+                alert('Пожалуйста, выберите хотя бы один день!');
+                return;
+            }
+
+            const generateId = () => 'item_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4);
+
+            selectedDays.forEach(dayId => {
+                if (!trackerData[dayId]) {
+                    trackerData[dayId] = { lessons: [], homework: [], habits: [] };
+                }
+
+                if (type === 'lesson') {
+                    const name = document.getElementById('field-name').value;
+                    const time = document.getElementById('field-time').value || 'Не указано';
+                    trackerData[dayId].lessons.push({ id: generateId(), name, time, done: false });
+                } else if (type === 'homework') {
+                    const subject = document.getElementById('field-subject').value;
+                    const task = document.getElementById('field-task').value;
+                    trackerData[dayId].homework.push({ id: generateId(), subject, task, done: false });
+                } else if (type === 'habit') {
+                    const title = document.getElementById('field-title').value;
+                    const category = document.getElementById('field-category').value;
+                    const time = document.getElementById('field-habit-time').value || '';
+                    trackerData[dayId].habits.push({ id: generateId(), title, category, time, done: false });
+                }
+            });
+
+            saveData();
+            closeModal();
+        }
+    </script>
 </body>
 </html>
