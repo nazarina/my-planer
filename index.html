@@ -259,13 +259,28 @@
       opacity: 0.5;
     }
 
+    .task-tag {
+      font-size: 0.75rem;
+      color: #888;
+      background: rgba(0, 0, 0, 0.05);
+      padding: 1px 5px;
+      border-radius: 4px;
+      margin-left: auto;
+    }
+
     .add-task-form {
       display: flex;
-      gap: 5px;
+      flex-direction: column;
+      gap: 6px;
       margin-top: 10px;
     }
 
-    .add-task-form input {
+    .add-task-input-group {
+      display: flex;
+      gap: 5px;
+    }
+
+    .add-task-form input[type="text"] {
       flex: 1;
       padding: 6px 10px;
       border: 1px solid #e0e0e0;
@@ -280,6 +295,18 @@
       border: none;
       padding: 6px 12px;
       border-radius: 6px;
+      cursor: pointer;
+    }
+
+    .add-task-options {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.75rem;
+      color: #777;
+    }
+
+    .add-task-options input[type="checkbox"] {
       cursor: pointer;
     }
 
@@ -462,7 +489,13 @@
         document.getElementById('survey-modal').classList.remove('hidden');
       } else {
         document.getElementById('survey-modal').classList.add('hidden');
-        renderCurrentView();
+        
+        // Автоматический перенос невыполненных задач при загрузке
+        if (autoRolloverTasks()) {
+          saveData(); // Если были переносы, обновляем Firebase
+        } else {
+          renderCurrentView();
+        }
       }
     });
 
@@ -472,6 +505,40 @@
         periodLogs: appState.periodLogs,
         tasks: appState.tasks
       });
+    }
+
+    // Логика автоматического переноса задач
+    function autoRolloverTasks() {
+      const todayStr = formatDate(new Date());
+      let modified = false;
+
+      Object.keys(appState.tasks).forEach(dateStr => {
+        // Проверяем только прошлые дни
+        if (dateStr < todayStr) {
+          const dayTasks = appState.tasks[dateStr];
+          const remainingTasks = [];
+
+          dayTasks.forEach(task => {
+            // Если задача не сделана и НЕ привязана к дате (fixed !== true)
+            if (!task.done && !task.fixed) {
+              if (!appState.tasks[todayStr]) appState.tasks[todayStr] = [];
+              
+              // Переносим на сегодня, отмечаем флаг переноса для UI
+              appState.tasks[todayStr].push({
+                ...task,
+                isRolledOver: true
+              });
+              modified = true;
+            } else {
+              remainingTasks.push(task);
+            }
+          });
+
+          appState.tasks[dateStr] = remainingTasks;
+        }
+      });
+
+      return modified;
     }
 
     function renderCurrentView() {
@@ -620,12 +687,20 @@
               <li class="task-item ${t.done ? 'completed' : ''}">
                 <input type="checkbox" ${t.done ? 'checked' : ''} onchange="toggleTask('${dateStr}', ${index})">
                 <span>${t.text}</span>
+                ${t.isRolledOver ? `<span class="task-tag" title="Перенесено с прошлого дня">↪</span>` : ''}
+                ${t.fixed ? `<span class="task-tag" title="Привязано к дате">📌</span>` : ''}
               </li>
             `).join('')}
           </ul>
           <form class="add-task-form" onsubmit="addTask(event, '${dateStr}')">
-            <input type="text" placeholder="Новая задача..." required>
-            <button type="submit">+</button>
+            <div class="add-task-input-group">
+              <input type="text" class="task-input" placeholder="Новая задача..." required>
+              <button type="submit">+</button>
+            </div>
+            <label class="add-task-options">
+              <input type="checkbox" class="task-fixed-checkbox">
+              Не переносить (привязана к дате)
+            </label>
           </form>
         `;
 
@@ -635,12 +710,21 @@
 
     window.addTask = function(e, dateStr) {
       e.preventDefault();
-      const input = e.target.querySelector('input');
-      const text = input.value.trim();
+      const form = e.target;
+      const textInput = form.querySelector('.task-input');
+      const fixedCheckbox = form.querySelector('.task-fixed-checkbox');
+
+      const text = textInput.value.trim();
+      const isFixed = fixedCheckbox.checked;
+
       if (!text) return;
 
       if (!appState.tasks[dateStr]) appState.tasks[dateStr] = [];
-      appState.tasks[dateStr].push({ text, done: false });
+      appState.tasks[dateStr].push({ 
+        text: text, 
+        done: false, 
+        fixed: isFixed 
+      });
       
       saveData();
     };
