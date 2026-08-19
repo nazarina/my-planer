@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Заботливый Планер | Кот и Код</title>
+  <title>Мой Планер</title>
   <style>
     :root {
       --soft-pink: #fff0f3;
@@ -13,238 +13,419 @@
       --text-main: #4a4a4a;
       --white: #ffffff;
       --button-grad: linear-gradient(to top, #800000 0%, #d63031 100%);
+      
+      /* Нейтральные и спокойные оттенки для цикла */
+      --period-accent: #e8a5b8;
+      --period-subtle-bg: #fdf5f7;
+      --forecast-accent: #d1b3c4;
+      --forecast-subtle-bg: #faf7f9;
     }
 
     * {
       box-sizing: border-box;
       margin: 0;
       padding: 0;
-      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
     }
 
     body {
       background-color: var(--soft-pink);
       color: var(--text-main);
-      padding: 20px;
-      display: flex;
-      justify-content: center;
       min-height: 100vh;
+      display: flex;
+      flex-direction: column;
     }
 
-    .app-container {
-      width: 100%;
-      max-width: 650px;
-      background-color: var(--white);
-      border-radius: 20px;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.05);
-      padding: 25px;
-      position: relative;
-    }
-
+    /* Навигация */
     header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      border-bottom: 2px solid var(--soft-purple);
-      padding-bottom: 15px;
-      margin-bottom: 20px;
-    }
-
-    .brand-title {
-      font-size: 1.4rem;
-      color: var(--deep-accent);
-      font-weight: bold;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .sync-badge {
-      font-size: 0.8rem;
-      background-color: var(--soft-purple);
-      color: var(--accent-color);
-      padding: 4px 10px;
-      border-radius: 12px;
-      font-weight: 600;
-      display: flex;
-      align-items: center;
-      gap: 5px;
-    }
-
-    .sync-dot {
-      width: 8px;
-      height: 8px;
-      background-color: #2e7d32;
-      border-radius: 50%;
-      display: inline-block;
-    }
-
-    .cat-card {
-      background-color: var(--soft-purple);
-      border-radius: 16px;
-      padding: 15px;
-      display: flex;
-      align-items: center;
-      gap: 15px;
-      margin-bottom: 20px;
-    }
-
-    .cat-avatar {
-      font-size: 2.5rem;
       background: var(--white);
-      width: 60px;
-      height: 60px;
+      padding: 15px 20px;
       display: flex;
+      justify-content: space-between;
       align-items: center;
-      justify-content: center;
-      border-radius: 50%;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+      box-shadow: 0 2px 10px rgba(0,0,0,0.03);
     }
 
-    .cat-speech {
-      font-size: 0.95rem;
-      color: var(--text-main);
-      line-height: 1.4;
+    header h1 {
+      font-size: 1.2rem;
+      color: var(--deep-accent);
+      font-weight: 600;
     }
 
-    .task-input-section {
-      display: flex;
-      gap: 10px;
+    nav button {
+      background: transparent;
+      border: 1px solid var(--accent-color);
+      color: var(--accent-color);
+      padding: 6px 14px;
+      border-radius: 20px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      transition: all 0.2s;
+    }
+
+    nav button.active, nav button:hover {
+      background: var(--accent-color);
+      color: var(--white);
+    }
+
+    /* Контейнер */
+    .container {
+      max-width: 1000px;
+      width: 100%;
+      margin: 20px auto;
+      padding: 0 15px;
+      flex: 1;
+    }
+
+    .card {
+      background: var(--white);
+      border-radius: 16px;
+      padding: 20px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.03);
       margin-bottom: 20px;
     }
 
-    input[type="text"] {
-      flex: 1;
-      padding: 12px 16px;
-      border: 2px solid var(--soft-purple);
-      border-radius: 12px;
-      outline: none;
-      font-size: 1rem;
-      color: var(--text-main);
-      transition: border-color 0.2s;
+    /* Модальное окно / Опрос */
+    .modal-overlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0,0,0,0.4);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
     }
 
-    input[type="text"]:focus {
-      border-color: var(--accent-color);
+    .modal {
+      background: var(--white);
+      padding: 30px;
+      border-radius: 20px;
+      max-width: 450px;
+      width: 90%;
     }
 
-    .btn-add {
+    .modal h2 {
+      color: var(--deep-accent);
+      margin-bottom: 15px;
+    }
+
+    .form-group {
+      margin-bottom: 15px;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 5px;
+      font-size: 0.9rem;
+    }
+
+    .form-group input {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+    }
+
+    .btn-submit {
       background: var(--button-grad);
       color: var(--white);
       border: none;
-      border-radius: 12px;
-      padding: 0 20px;
-      font-size: 1rem;
-      font-weight: bold;
+      padding: 10px 20px;
+      border-radius: 8px;
       cursor: pointer;
+      width: 100%;
+      font-size: 1rem;
+      margin-top: 10px;
+    }
+
+    /* Навигация по неделям */
+    .week-navigation {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .week-navigation button {
+      background: var(--soft-purple);
+      border: none;
+      padding: 8px 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      color: var(--text-main);
+    }
+
+    /* Карточки дней */
+    .days-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 15px;
+    }
+
+    .day-card {
+      background: var(--soft-purple);
+      border-radius: 12px;
+      padding: 15px;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      border-left: 4px solid transparent;
+      transition: all 0.2s ease;
+    }
+
+    /* Элегантное и незаметное выделение */
+    .day-card.is-period {
+      background: var(--period-subtle-bg);
+      border-left-color: var(--period-accent);
+    }
+
+    .day-card.is-forecast {
+      background: var(--forecast-subtle-bg);
+      border-left-color: var(--forecast-accent);
+    }
+
+    .day-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .day-title {
+      font-weight: 600;
+      font-size: 0.95rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .day-actions {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    /* Аккуратная плашка цикла */
+    .cycle-dot-indicator {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 0.75rem;
+      color: #9e6d79;
+      background: rgba(232, 165, 184, 0.15);
+      padding: 2px 8px;
+      border-radius: 12px;
+    }
+
+    .cycle-dot-indicator.forecast {
+      color: #8c7180;
+      background: rgba(209, 179, 196, 0.15);
+    }
+
+    /* Минималистичная кнопка отметки */
+    .period-toggle-btn {
+      background: transparent;
+      border: none;
+      color: #b5838f;
+      cursor: pointer;
+      font-size: 1rem;
+      padding: 2px 5px;
+      border-radius: 50%;
+      opacity: 0.5;
       transition: opacity 0.2s;
     }
 
-    .btn-add:hover {
-      opacity: 0.9;
+    .day-card:hover .period-toggle-btn,
+    .period-toggle-btn.active {
+      opacity: 1;
     }
 
     .task-list {
       list-style: none;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
+      margin-bottom: 10px;
+      flex: 1;
     }
 
     .task-item {
       display: flex;
       align-items: center;
-      justify-content: space-between;
-      padding: 12px 16px;
-      background-color: #fafafa;
-      border-radius: 12px;
-      border-left: 4px solid var(--accent-color);
-      transition: all 0.2s;
+      gap: 8px;
+      margin-bottom: 6px;
+      font-size: 0.9rem;
     }
 
-    .task-item.completed {
-      border-left-color: #a0a0a0;
-      opacity: 0.6;
-    }
-
-    .task-item.completed .task-text {
+    .task-item.completed span {
       text-decoration: line-through;
+      opacity: 0.5;
     }
 
-    .task-left {
+    .add-task-form {
       display: flex;
-      align-items: center;
-      gap: 12px;
+      gap: 5px;
+      margin-top: 10px;
     }
 
-    .task-checkbox {
-      width: 18px;
-      height: 18px;
-      cursor: pointer;
-      accent-color: var(--accent-color);
-    }
-
-    .task-text {
-      font-size: 1rem;
-    }
-
-    .btn-delete {
-      background: none;
-      border: none;
-      color: #e74c3c;
-      font-size: 1.2rem;
-      cursor: pointer;
-      padding: 4px 8px;
+    .add-task-form input {
+      flex: 1;
+      padding: 6px 10px;
+      border: 1px solid #e0e0e0;
       border-radius: 6px;
+      font-size: 0.85rem;
+      background: var(--white);
     }
 
-    .btn-delete:hover {
-      background-color: #fceae8;
+    .add-task-form button {
+      background: var(--accent-color);
+      color: white;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 6px;
+      cursor: pointer;
     }
 
-    .empty-state {
+    /* Календарь на месяц */
+    .month-picker-container {
+      display: flex;
+      gap: 15px;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .month-picker-container button {
+      background: var(--soft-purple);
+      border: none;
+      padding: 6px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    .month-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 6px;
       text-align: center;
-      padding: 30px;
-      color: #888;
-      font-size: 0.95rem;
     }
+
+    .month-day-head {
+      font-weight: 600;
+      padding: 8px;
+      font-size: 0.85rem;
+      color: #888;
+    }
+
+    .month-day {
+      aspect-ratio: 1;
+      border-radius: 8px;
+      background: var(--soft-purple);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.85rem;
+      position: relative;
+    }
+
+    .month-day.other-month {
+      opacity: 0.25;
+    }
+
+    /* Деликатные маркеры в календаре */
+    .month-day.period {
+      background: var(--period-subtle-bg);
+      font-weight: 600;
+    }
+
+    .month-day.period::after {
+      content: '';
+      width: 5px;
+      height: 5px;
+      background-color: var(--period-accent);
+      border-radius: 50%;
+      position: absolute;
+      bottom: 6px;
+    }
+
+    .month-day.forecast {
+      background: var(--forecast-subtle-bg);
+    }
+
+    .month-day.forecast::after {
+      content: '';
+      width: 4px;
+      height: 4px;
+      border: 1px solid var(--forecast-accent);
+      border-radius: 50%;
+      position: absolute;
+      bottom: 6px;
+    }
+
+    .hidden { display: none !important; }
   </style>
 </head>
 <body>
 
-  <div class="app-container">
-    <header>
-      <div class="brand-title">
-        🐾 Кот и Код
-      </div>
-      <div class="sync-badge">
-        <span class="sync-dot"></span>
-        Облачная синхронизация
-      </div>
-    </header>
+  <header>
+    <h1>Мой Планер</h1>
+    <nav>
+      <button id="nav-planner" class="active" onclick="switchView('planner')">Неделя</button>
+      <button id="nav-calendar" onclick="switchView('calendar')">Календарь</button>
+    </nav>
+  </header>
 
-    <div class="cat-card">
-      <div class="cat-avatar">🐱</div>
-      <div class="cat-speech" id="catSpeech">
-        Привет! Я твой помощник. Все твои задачи синхронизируются мгновенно между всеми устройствами!
+  <div class="container">
+    <!-- Первоначальный опрос -->
+    <div id="survey-modal" class="modal-overlay hidden">
+      <div class="modal">
+        <h2>Настройка планера</h2>
+        <p style="margin-bottom: 15px; font-size: 0.85rem; color: #666;">Введите начальные данные для прогноза цикла.</p>
+        <form id="survey-form">
+          <div class="form-group">
+            <label>Дата начала последних месячных:</label>
+            <input type="date" id="last-period-date" required>
+          </div>
+          <div class="form-group">
+            <label>Средняя длина цикла (дней):</label>
+            <input type="number" id="cycle-length" value="28" min="15" max="60" required>
+          </div>
+          <div class="form-group">
+            <label>Длительность (дней):</label>
+            <input type="number" id="period-duration" value="5" min="1" max="10" required>
+          </div>
+          <button type="submit" class="btn-submit">Сохранить</button>
+        </form>
       </div>
     </div>
 
-    <div class="task-input-section">
-      <input type="text" id="taskInput" placeholder="Добавь новую задачу..." onkeydown="if(event.key==='Enter') addTask()">
-      <button class="btn-add" onclick="addTask()">Добавить</button>
+    <!-- Страница: Понедельный планер -->
+    <div id="planner-view">
+      <div class="card">
+        <div class="week-navigation">
+          <button onclick="changeWeek(-1)">← Пред. неделя</button>
+          <span id="current-week-label" style="font-weight: 600; font-size: 0.95rem;">-</span>
+          <button onclick="changeWeek(1)">След. неделя →</button>
+        </div>
+        <div class="days-grid" id="days-container"></div>
+      </div>
     </div>
 
-    <ul class="task-list" id="taskList">
-      <div class="empty-state">Загружаем твои задачи из облака...</div>
-    </ul>
+    <!-- Страница: Календарь -->
+    <div id="calendar-view" class="hidden">
+      <div class="card">
+        <div class="month-picker-container">
+          <button onclick="changeMonth(-1)">←</button>
+          <h2 id="calendar-month-label" style="font-size: 1.1rem; font-weight: 600;">Месяц</h2>
+          <button onclick="changeMonth(1)">→</button>
+        </div>
+        <div class="month-grid" id="month-grid"></div>
+      </div>
+    </div>
   </div>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-app.js";
     import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-database.js";
 
-    // Конфигурация Firebase из твоего проекта
+    // Инициализация Firebase
     const firebaseConfig = {
       apiKey: "AIzaSyAW9W3M4p5yHxfwN4lhOot3YWxFoPKciEA",
       authDomain: "diary-1c00d.firebaseapp.com",
@@ -257,98 +438,278 @@
 
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
-    const tasksRef = ref(db, 'planner/tasks');
+    const stateRef = ref(db, 'planner_state');
 
-    let currentTasks = [];
+    // --- Состояние приложения ---
+    let appState = {
+      userData: null,
+      periodLogs: [],
+      tasks: {},
+      currentWeekStart: getMonday(new Date()),
+      calendarDate: new Date()
+    };
 
-    // Слушатель событий в реальном времени (синхронизация со всеми устройствами)
-    onValue(tasksRef, (snapshot) => {
+    // Слушаем базу данных Firebase
+    onValue(stateRef, (snapshot) => {
       const data = snapshot.val();
-      currentTasks = data || [];
-      renderTasks(currentTasks);
-      updateCatSpeech();
-    });
-
-    function saveTasksToCloud() {
-      set(tasksRef, currentTasks);
-    }
-
-    function renderTasks(tasks) {
-      const listEl = document.getElementById('taskList');
-      listEl.innerHTML = '';
-
-      if (tasks.length === 0) {
-        listEl.innerHTML = '<div class="empty-state">У тебя пока нет задач. Отличный повод отдыхать! 🐱</div>';
-        return;
+      if (data) {
+        appState.userData = data.userData || null;
+        appState.periodLogs = data.periodLogs || [];
+        appState.tasks = data.tasks || {};
       }
 
-      tasks.forEach((task, index) => {
-        const li = document.createElement('li');
-        li.className = `task-item ${task.completed ? 'completed' : ''}`;
-        li.innerHTML = `
-          <div class="task-left">
-            <input type="checkbox" class="task-checkbox" ${task.completed ? 'checked' : ''} onchange="toggleTask(${index})">
-            <span class="task-text">${escapeHtml(task.text)}</span>
-          </div>
-          <button class="btn-delete" onclick="deleteTask(${index})" title="Удалить">🗑️</button>
-        `;
-        listEl.appendChild(li);
+      if (!appState.userData) {
+        document.getElementById('survey-modal').classList.remove('hidden');
+      } else {
+        document.getElementById('survey-modal').classList.add('hidden');
+        renderCurrentView();
+      }
+    });
+
+    function saveData() {
+      set(stateRef, {
+        userData: appState.userData,
+        periodLogs: appState.periodLogs,
+        tasks: appState.tasks
       });
     }
 
-    function updateCatSpeech() {
-      const speech = document.getElementById('catSpeech');
-      const total = currentTasks.length;
-      const completed = currentTasks.filter(t => t.completed).length;
-
-      if (total === 0) {
-        speech.textContent = "Мурр! Все дела сделаны, можно отдохнуть!";
-      } else if (completed === total) {
-        speech.textContent = "Ура! Все задачи выполнены! Ты супер!";
+    function renderCurrentView() {
+      const isPlanner = !document.getElementById('planner-view').classList.contains('hidden');
+      if (isPlanner) {
+        renderPlanner();
       } else {
-        speech.textContent = `Выполнено ${completed} из ${total} задач. Мур-с, двигаемся дальше!`;
+        renderCalendar();
       }
     }
 
-    window.addTask = function() {
-      const input = document.getElementById('taskInput');
+    document.getElementById('survey-form').onsubmit = function(e) {
+      e.preventDefault();
+      const lastDate = document.getElementById('last-period-date').value;
+      const cycleLen = parseInt(document.getElementById('cycle-length').value);
+      const duration = parseInt(document.getElementById('period-duration').value);
+
+      appState.userData = { cycleLength: cycleLen, periodDuration: duration };
+      
+      appState.periodLogs = [];
+      let startDate = new Date(lastDate);
+      for (let i = 0; i < duration; i++) {
+        let d = new Date(startDate);
+        d.setDate(d.getDate() + i);
+        appState.periodLogs.push(formatDate(d));
+      }
+
+      saveData();
+    };
+
+    function getMonday(d) {
+      d = new Date(d);
+      let day = d.getDay(), diff = d.getDate() - day + (day === 0 ? -6 : 1);
+      return new Date(d.setDate(diff));
+    }
+
+    function formatDate(date) {
+      let d = new Date(date), month = '' + (d.getMonth() + 1), day = '' + d.getDate(), year = d.getFullYear();
+      if (month.length < 2) month = '0' + month;
+      if (day.length < 2) day = '0' + day;
+      return [year, month, day].join('-');
+    }
+
+    function isPeriodDay(dateStr) {
+      return appState.periodLogs.includes(dateStr);
+    }
+
+    function isForecastDay(dateStr) {
+      if (!appState.userData || appState.periodLogs.length === 0) return false;
+      
+      const sortedLogs = [...appState.periodLogs].sort();
+      const lastLoggedDate = new Date(sortedLogs[sortedLogs.length - 1]);
+      const targetDate = new Date(dateStr);
+
+      if (targetDate <= lastLoggedDate) return false;
+
+      const firstDayOfLastPeriod = new Date(sortedLogs[0]); 
+      let nextCycleStart = new Date(firstDayOfLastPeriod);
+      const cycleLen = appState.userData.cycleLength;
+      const duration = appState.userData.periodDuration;
+
+      while (nextCycleStart <= targetDate) {
+        nextCycleStart.setDate(nextCycleStart.getDate() + cycleLen);
+        
+        let cycleEnd = new Date(nextCycleStart);
+        cycleEnd.setDate(cycleEnd.getDate() + duration - 1);
+
+        if (targetDate >= nextCycleStart && targetDate <= cycleEnd) {
+          return true;
+        }
+      }
+      return false;
+    }
+
+    window.switchView = function(view) {
+      document.getElementById('planner-view').classList.add('hidden');
+      document.getElementById('calendar-view').classList.add('hidden');
+      document.getElementById('nav-planner').classList.remove('active');
+      document.getElementById('nav-calendar').classList.remove('active');
+
+      if (view === 'planner') {
+        document.getElementById('planner-view').classList.remove('hidden');
+        document.getElementById('nav-planner').classList.add('active');
+        renderPlanner();
+      } else {
+        document.getElementById('calendar-view').classList.remove('hidden');
+        document.getElementById('nav-calendar').classList.add('active');
+        renderCalendar();
+      }
+    };
+
+    window.changeWeek = function(offset) {
+      appState.currentWeekStart.setDate(appState.currentWeekStart.getDate() + (offset * 7));
+      renderPlanner();
+    };
+
+    function renderPlanner() {
+      const container = document.getElementById('days-container');
+      container.innerHTML = '';
+
+      const weekStart = new Date(appState.currentWeekStart);
+      const weekEnd = new Date(weekStart);
+      weekEnd.setDate(weekEnd.getDate() + 6);
+
+      document.getElementById('current-week-label').innerText = 
+        `${weekStart.toLocaleDateString('ru-RU', {day: 'numeric', month: 'short'})} - ${weekEnd.toLocaleDateString('ru-RU', {day: 'numeric', month: 'short', year: 'numeric'})}`;
+
+      const daysOfWeek = ['Понедельник', 'Вторник', 'Среда', 'Четверг', 'Пятница', 'Суббота', 'Воскресенье'];
+
+      for (let i = 0; i < 7; i++) {
+        const currentDate = new Date(weekStart);
+        currentDate.setDate(currentDate.getDate() + i);
+        const dateStr = formatDate(currentDate);
+
+        const isPeriod = isPeriodDay(dateStr);
+        const isForecast = !isPeriod && isForecastDay(dateStr);
+
+        const dayCard = document.createElement('div');
+        dayCard.className = `day-card ${isPeriod ? 'is-period' : ''} ${isForecast ? 'is-forecast' : ''}`;
+
+        let indicatorHtml = '';
+        if (isPeriod) {
+          indicatorHtml = `<span class="cycle-dot-indicator">• цикл</span>`;
+        } else if (isForecast) {
+          indicatorHtml = `<span class="cycle-dot-indicator forecast">• прогноз</span>`;
+        }
+
+        const dayTasks = appState.tasks[dateStr] || [];
+
+        dayCard.innerHTML = `
+          <div class="day-header">
+            <div class="day-title">
+              <span>${daysOfWeek[i]}, ${currentDate.getDate()}</span>
+              ${indicatorHtml}
+            </div>
+            <div class="day-actions">
+              <button class="period-toggle-btn ${isPeriod ? 'active' : ''}" 
+                      title="${isPeriod ? 'Снять отметку' : 'Отметить день'}" 
+                      onclick="togglePeriodLog('${dateStr}')">
+                🌸
+              </button>
+            </div>
+          </div>
+          <ul class="task-list" id="tasks-${dateStr}">
+            ${dayTasks.map((t, index) => `
+              <li class="task-item ${t.done ? 'completed' : ''}">
+                <input type="checkbox" ${t.done ? 'checked' : ''} onchange="toggleTask('${dateStr}', ${index})">
+                <span>${t.text}</span>
+              </li>
+            `).join('')}
+          </ul>
+          <form class="add-task-form" onsubmit="addTask(event, '${dateStr}')">
+            <input type="text" placeholder="Новая задача..." required>
+            <button type="submit">+</button>
+          </form>
+        `;
+
+        container.appendChild(dayCard);
+      }
+    }
+
+    window.addTask = function(e, dateStr) {
+      e.preventDefault();
+      const input = e.target.querySelector('input');
       const text = input.value.trim();
       if (!text) return;
 
-      currentTasks.push({
-        text: text,
-        completed: false,
-        createdAt: Date.now()
-      });
-
-      input.value = '';
-      saveTasksToCloud();
+      if (!appState.tasks[dateStr]) appState.tasks[dateStr] = [];
+      appState.tasks[dateStr].push({ text, done: false });
+      
+      saveData();
     };
 
-    window.toggleTask = function(index) {
-      if (currentTasks[index]) {
-        currentTasks[index].completed = !currentTasks[index].completed;
-        saveTasksToCloud();
+    window.toggleTask = function(dateStr, index) {
+      if (appState.tasks[dateStr] && appState.tasks[dateStr][index]) {
+        appState.tasks[dateStr][index].done = !appState.tasks[dateStr][index].done;
+        saveData();
       }
     };
 
-    window.deleteTask = function(index) {
-      if (currentTasks[index]) {
-        currentTasks.splice(index, 1);
-        saveTasksToCloud();
+    window.togglePeriodLog = function(dateStr) {
+      const idx = appState.periodLogs.indexOf(dateStr);
+      if (idx > -1) {
+        appState.periodLogs.splice(idx, 1);
+      } else {
+        appState.periodLogs.push(dateStr);
       }
+      saveData();
     };
 
-    function escapeHtml(str) {
-      return str.replace(/[&<>"']/g, function(m) {
-        return {
-          '&': '&amp;',
-          '<': '&lt;',
-          '>': '&gt;',
-          '"': '&quot;',
-          "'": '&#039;'
-        }[m];
+    window.changeMonth = function(offset) {
+      appState.calendarDate.setMonth(appState.calendarDate.getMonth() + offset);
+      renderCalendar();
+    };
+
+    function renderCalendar() {
+      const grid = document.getElementById('month-grid');
+      grid.innerHTML = '';
+
+      const year = appState.calendarDate.getFullYear();
+      const month = appState.calendarDate.getMonth();
+
+      document.getElementById('calendar-month-label').innerText = 
+        new Date(year, month).toLocaleDateString('ru-RU', { month: 'long', year: 'numeric' });
+
+      const headers = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'];
+      headers.forEach(h => {
+        const div = document.createElement('div');
+        div.className = 'month-day-head';
+        div.innerText = h;
+        grid.appendChild(div);
       });
+
+      const firstDayOfMonth = new Date(year, month, 1);
+      const startingDay = (firstDayOfMonth.getDay() + 6) % 7;
+      const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+      for (let i = 0; i < startingDay; i++) {
+        const div = document.createElement('div');
+        div.className = 'month-day other-month';
+        grid.appendChild(div);
+      }
+
+      for (let day = 1; day <= daysInMonth; day++) {
+        const curr = new Date(year, month, day);
+        const dateStr = formatDate(curr);
+
+        const isPeriod = isPeriodDay(dateStr);
+        const isForecast = !isPeriod && isForecastDay(dateStr);
+
+        const div = document.createElement('div');
+        div.className = `month-day ${isPeriod ? 'period' : ''} ${isForecast ? 'forecast' : ''}`;
+        div.innerHTML = `<span>${day}</span>`;
+        if (isPeriod || isForecast) {
+          div.title = isPeriod ? 'Цикл' : 'Прогноз';
+        }
+        grid.appendChild(div);
+      }
     }
   </script>
 </body>
