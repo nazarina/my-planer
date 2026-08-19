@@ -38,6 +38,35 @@
       display: flex;
       flex-direction: column;
     }
+    /* Верхнее сервисно-навигационное меню */
+    .top-services-bar {
+      background: #fafafa;
+      border-bottom: 1px solid #eaeaea;
+      padding: 8px 20px;
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .top-services-bar a, .top-services-bar button {
+      color: var(--text-main);
+      text-decoration: none;
+      font-size: 0.85rem;
+      padding: 5px 12px;
+      border-radius: 16px;
+      background: var(--white);
+      border: 1px solid #ddd;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+    }
+
+    .top-services-bar a:hover, .top-services-bar button:hover {
+      border-color: var(--accent-color);
+      color: var(--accent-color);
+    }
 
     header {
       background: var(--white);
@@ -433,7 +462,13 @@
   </style>
 </head>
 <body>
-
+ <div class="top-services-bar">
+    <a href="https://nazarina.github.io/workout/" target="_blank">Тренировки</a>
+    <button onclick="switchView('calendar')">График месячных</button>
+    <a href="https://nazarina.github.io/diary-vova/" target="_blank">Дневник Вовы</a>
+    <a href="https://nazarina.github.io/diary-varya/" target="_blank">Дневник Вари</a>
+    <a href="https://nazarina.github.io/pay-novamed/" target="_blank">Новамед</a>
+  </div>
   <header>
     <h1>Мой Планер</h1>
     <nav>
