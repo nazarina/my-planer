@@ -13,48 +13,60 @@
         .custom-scrollbar::-webkit-scrollbar-track { background: #f1f5f9; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 6px; }
         .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
-        .foxford-btn {
-            display: flex;
-            justify-content: center;
-            margin: 60px auto 40px auto;
-        }
-        a.foxford-link {
-            border-radius: 16px;
-            display: block;
-            padding: 18px 60px;
+        
+        /* Кнопка Фоксфорда в шапке */
+        a.foxford-link-top {
+            border-radius: 12px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
             background: #423ac0;
             color: #fff;
-            font-size: 24px;
+            font-size: 15px;
             font-weight: 600;
             text-align: center;
             transition: all 0.2s ease;
-            box-shadow: 0 10px 25px -5px rgba(66, 58, 192, 0.4);
+            box-shadow: 0 4px 12px rgba(66, 58, 192, 0.25);
         }
-        a.foxford-link:hover {
+        a.foxford-link-top:hover {
             background: #352ea8;
-            transform: translateY(-2px);
-            box-shadow: 0 15px 30px -5px rgba(66, 58, 192, 0.5);
+            transform: translateY(-1px);
+            box-shadow: 0 6px 16px rgba(66, 58, 192, 0.35);
         }
     </style>
 </head>
 <body class="h-full text-slate-800 antialiased flex flex-col">
 
+    <!-- Header с кнопкой Фоксфорд вверху -->
     <header class="bg-white border-b border-slate-200 sticky top-0 z-20 shadow-sm">
         <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex items-center justify-between h-20">
+            <div class="flex items-center justify-between h-20 gap-4">
+                
+                <!-- Логотип и заголовок -->
                 <div class="flex items-center space-x-3.5">
-                    <div class="w-12 h-12 rounded-2xl bg-indigo-600 flex items-center justify-center text-white shadow-md shadow-indigo-200">
+                    <div class="w-12 h-12 rounded-2xl bg-indigo-600 flex items-center justify-center text-white shadow-md shadow-indigo-200 shrink-0">
                         <i class="fa-solid fa-graduation-cap text-2xl"></i>
                     </div>
                     <div>
-                        <h1 class="font-bold text-slate-900 text-2xl leading-tight">Школьный Трекер</h1>
-                        <p class="text-sm text-slate-500 font-medium">Расписание и задания на неделю</p>
+                        <h1 class="font-bold text-slate-900 text-xl sm:text-2xl leading-tight">Школьный Трекер</h1>
+                        <p class="text-xs sm:text-sm text-slate-500 font-medium">Расписание и задания на неделю</p>
                     </div>
                 </div>
 
-                <button id="reset-day-btn" onclick="resetCurrentDay()" class="text-sm font-semibold text-slate-600 hover:text-indigo-600 bg-slate-100 hover:bg-indigo-50 px-4 py-2.5 rounded-xl transition flex items-center gap-2">
-                    <i class="fa-solid fa-rotate-right text-base"></i> Сбросить день
-                </button>
+                <!-- Правый блок: Кнопка Фоксфорд + Кнопка сброса -->
+                <div class="flex items-center gap-3">
+                    <a class="foxford-link-top" href="https://foxford.ru/elementary/dashboard" target="_blank" rel="noopener noreferrer">
+                        <i class="fa-solid fa-arrow-up-right-from-square text-sm"></i>
+                        <span>Фоксфорд</span>
+                    </a>
+
+                    <button id="reset-day-btn" onclick="resetCurrentDay()" class="text-sm font-semibold text-slate-600 hover:text-indigo-600 bg-slate-100 hover:bg-indigo-50 px-3.5 py-2.5 rounded-xl transition flex items-center gap-2" title="Сбросить отметки текущего дня">
+                        <i class="fa-solid fa-rotate-right text-base"></i>
+                        <span class="hidden md:inline">Сбросить день</span>
+                    </button>
+                </div>
+
             </div>
         </div>
     </header>
@@ -167,11 +179,6 @@
                 <!-- Habits rendered here -->
             </div>
         </section>
-
-        <!-- Foxford Link Button -->
-        <div class="foxford-btn">
-            <a class="foxford-link" href="https://foxford.ru/elementary/dashboard" target="_blank" rel="noopener noreferrer">Перейти в Фоксфорд</a>
-        </div>
 
     </main>
 
